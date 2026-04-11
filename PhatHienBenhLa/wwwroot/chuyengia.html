@@ -1,0 +1,981 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phòng làm việc Chuyên gia - PlantDisease AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1976d2;
+            --primary-dark: #115293;
+            --primary-light: #e3f2fd;
+            --text-dark: #333;
+            --text-gray: #666;
+            --border: #e0e0e0;
+            --bg-body: #f4f7f6;
+            --white: #ffffff;
+            --danger: #d32f2f;
+            --success: #388e3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- MENU BÊN TRÁI (SIDEBAR) --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--white);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background-color: var(--primary);
+            color: var(--white);
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 60px;
+            box-sizing: border-box;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+            flex: 1;
+        }
+
+            .sidebar-menu li.tab-btn {
+                padding: 15px 25px;
+                cursor: pointer;
+                transition: 0.3s;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                color: var(--text-gray);
+                font-weight: 500;
+                position: relative;
+                background: transparent;
+                border: none;
+                border-right: 4px solid transparent;
+                width: 100%;
+                text-align: left;
+                font-size: 15px;
+                box-sizing: border-box;
+            }
+
+                .sidebar-menu li.tab-btn:hover, .sidebar-menu li.tab-btn.active {
+                    background-color: var(--primary-light);
+                    color: var(--primary);
+                    border-right-color: var(--primary);
+                }
+
+            .sidebar-menu i {
+                width: 20px;
+                text-align: center;
+                font-size: 18px;
+            }
+
+        /* --- KHU VỰC BÊN PHẢI --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .topbar {
+            height: 60px;
+            background-color: var(--white);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Nút Cập nhật Hồ sơ trên Topbar */
+        .profile-trigger {
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+        }
+
+            .profile-trigger:hover {
+                background-color: var(--primary-light);
+                color: var(--primary-dark);
+                border: 1px solid #bbdefb;
+            }
+
+        .btn-logout {
+            background-color: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 6px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+            .btn-logout:hover {
+                background-color: var(--danger);
+                color: white;
+            }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 30px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s;
+        }
+
+            .tab-content.active {
+                display: block;
+            }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .badge-noti {
+            background: var(--danger);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+            .card h3 {
+                margin-top: 0;
+                color: var(--primary);
+                border-bottom: 2px solid var(--primary-light);
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .btn-action {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .btn-reply {
+            background: var(--primary);
+        }
+
+            .btn-reply:hover {
+                background: var(--primary-dark);
+            }
+
+        .btn-approve {
+            background: var(--success);
+        }
+
+            .btn-approve:hover {
+                background: #2e7d32;
+            }
+
+        .btn-reject {
+            background: var(--danger);
+        }
+
+            .btn-reject:hover {
+                background: #b91c1c;
+            }
+
+        .farmer-note {
+            background: #fff3e0;
+            border-left: 4px solid #f57c00;
+            padding: 10px;
+            font-style: italic;
+            font-size: 14px;
+            margin-top: 5px;
+            border-radius: 4px;
+        }
+
+        /* CSS Cho Modal & Form Hồ sơ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 700px;
+            max-width: 95%;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-gray);
+        }
+
+            .close-modal:hover {
+                color: red;
+            }
+
+        .img-preview {
+            width: 100%;
+            height: 250px;
+            object-fit: contain;
+            background: #eee;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+            .form-group label {
+                display: block;
+                font-weight: bold;
+                font-size: 13px;
+                color: #555;
+                margin-bottom: 5px;
+            }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        #profImgPreview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border: 1px dashed #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header"><i class="fas fa-stethoscope"></i> Cổng Chuyên Gia</div>
+        <ul class="sidebar-menu">
+            <li class="tab-btn active" onclick="openTab('tab-thongke', this)">
+                <i class="fas fa-chart-pie"></i> Thống kê dữ liệu
+            </li>
+            <li class="tab-btn" onclick="openTab('tab-giadap', this)">
+                <i class="fas fa-comment-medical"></i> Giải đáp thắc mắc
+                <span class="badge-noti" id="badgeGiaiDap">0</span>
+            </li>
+            <li class="tab-btn" onclick="openTab('tab-pheduyet', this)">
+                <i class="fas fa-check-double"></i> Phê duyệt ảnh
+                <span class="badge-noti" id="badgePheDuyet">0</span>
+            </li>
+            <li class="tab-btn" onclick="openTab('tab-tintuc', this)">
+                <i class="fas fa-pen-nib"></i> Chia sẻ kiến thức
+            </li>
+
+            <li class="tab-btn" onclick="openTab('tab-hopthu', this)">
+                <i class="fas fa-envelope"></i> Hộp thư <span class="badge-noti" id="badgeHopThu">0</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div class="user-info">
+                <span class="profile-trigger" onclick="moHoSoCaNhan()" title="Bấm để cập nhật hồ sơ, bằng cấp">
+                    Xin chào, Chuyên gia <b id="userNameDisplay">Đang tải...</b>
+                    <i class="fas fa-user-edit" style="margin-left: 5px; font-size: 13px; color: var(--primary);"></i>
+                </span>
+                <button class="btn-logout" onclick="dangXuat()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div id="tab-thongke" class="tab-content active">
+                <div style="display: grid; grid-template-columns: 2fr 1.5fr; gap: 20px;">
+                    <div class="card">
+                        <h3><i class="fas fa-database"></i> Chi tiết Nhãn Dữ liệu (Dành cho Huấn luyện)</h3>
+                        <table>
+                            <thead><tr><th>Loại cây</th><th>Nhãn Bệnh (Farmer gán)</th><th>Tổng số ảnh</th><th>Đã xác thực (Approve)</th></tr></thead>
+                            <tbody id="thongKeNhanBody"><tr><td colspan="4">Đang tải...</td></tr></tbody>
+                        </table>
+                    </div>
+
+                    <div class="card" style="background: linear-gradient(180deg, #ffffff 0%, #fffdf5 100%); border-top: 4px solid #ffb300; box-shadow: 0 4px 15px rgba(255, 179, 0, 0.1);">
+                        <h3 style="color: #f57c00; margin-top: 0; padding-bottom: 12px; border-bottom: 2px dashed #ffe0b2; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-trophy" style="font-size: 20px;"></i> Bảng Vàng Đóng Góp
+                        </h3>
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                                <thead>
+                                    <tr>
+                                        <th style="color: #d84315; text-align: center; padding: 10px 5px; font-size: 13px; border-bottom: 1px solid #ffe0b2; background: transparent;">Hạng</th>
+                                        <th style="color: #d84315; padding: 10px 5px; text-align: left; font-size: 13px; border-bottom: 1px solid #ffe0b2; background: transparent;">Nông dân</th>
+                                        <th style="color: #d84315; padding: 10px 5px; text-align: left; font-size: 13px; border-bottom: 1px solid #ffe0b2; background: transparent;">Danh hiệu</th>
+                                        <th style="color: #d84315; padding: 10px 5px; text-align: right; font-size: 13px; border-bottom: 1px solid #ffe0b2; background: transparent;">Số ảnh</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboardBody">
+                                    <tr><td colspan="4" style="text-align: center; color: #999; padding: 20px;">Đang tải dữ liệu...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="tab-giadap" class="tab-content">
+                <div class="card">
+                    <h3><i class="fas fa-user-md"></i> Các ca bệnh Nông dân đang yêu cầu tư vấn</h3>
+                    <table>
+                        <thead><tr><th>Hình ảnh</th><th>Bệnh AI Đoán</th><th>Câu hỏi / Thắc mắc của Nông dân</th><th>Thao tác</th></tr></thead>
+                        <tbody id="giaiDapBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="tab-pheduyet" class="tab-content">
+                <div class="card">
+                    <h3><i class="fas fa-tasks"></i> Phê duyệt dữ liệu (Crowdsourcing)</h3>
+                    <p style="font-size: 13px; color: #666; margin-top: -10px; margin-bottom: 20px;">
+                        Các ảnh ấn <b>"Approve"</b> sẽ được đẩy vào thư mục sạch để Admin dùng huấn luyện lại mô hình AI.
+                    </p>
+                    <table>
+                        <thead><tr><th>Hình ảnh thực tế</th><th>Loại cây</th><th>Nhãn nông dân gán</th><th>Thời gian</th><th>Thao tác phê duyệt</th></tr></thead>
+                        <tbody id="pheDuyetBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="tab-tintuc" class="tab-content">
+                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px;">
+                    <div class="card">
+                        <h3><i class="fas fa-edit"></i> Soạn thảo bài viết</h3>
+                        <div class="form-group">
+                            <label>Tiêu đề bài viết</label>
+                            <input type="text" id="postTitle" class="form-control" placeholder="VD: Cách phòng bệnh khảm lá...">
+                        </div>
+                        <div class="form-group">
+                            <label>Loại cây</label>
+                            <select id="postLoaiCay" class="form-control">
+                                <option value="San">Cây Sắn</option>
+                                <option value="KhoaiTay">Cây Khoai Tây</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Ảnh minh họa</label>
+                            <input type="file" id="postImage" class="form-control" accept="image/*">
+                        </div>
+                        <div class="form-group">
+                            <label>Nội dung chi tiết</label>
+                            <textarea id="postContent" class="form-control" rows="10" placeholder="Chia sẻ kinh nghiệm của bạn tại đây..."></textarea>
+                        </div>
+                        <button class="btn-action btn-reply" style="width: 100%; padding: 12px;" onclick="dangBaiViet()">
+                            <i class="fas fa-paper-plane"></i> Gửi bài viết cho Admin duyệt
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-list"></i> Bài viết của tôi</h3>
+                        <div id="myPostsList" style="max-height: 600px; overflow-y: auto;">
+                            <p style="text-align:center; color:#999;">Đang tải danh sách...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="tab-hopthu" class="tab-content">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                    <div class="card">
+                        <h3><i class="fas fa-inbox"></i> Hộp thư đến</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Người gửi</th>
+                                    <th>Tiêu đề</th>
+                                    <th>Thời gian</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inboxBody">
+                                <tr><td colspan="4" style="text-align: center; color: #999;">Đang tải hộp thư...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="card" style="background: linear-gradient(180deg, #ffffff 0%, #f4f9ff 100%); border-top: 4px solid var(--info);">
+                        <h3 style="color: var(--info);"><i class="fas fa-paper-plane"></i> Gửi tin cho Admin</h3>
+                        <div class="form-group">
+                            <label>Tiêu đề cần hỗ trợ</label>
+                            <input type="text" id="chatTitle" class="form-control" placeholder="VD: Xin hỏi lý do bài viết bị từ chối...">
+                        </div>
+                        <div class="form-group">
+                            <label>Nội dung chi tiết</label>
+                            <textarea id="chatContent" class="form-control" rows="6" placeholder="Nhập nội dung bạn muốn gửi cho Ban quản trị..."></textarea>
+                        </div>
+                        <button class="btn-action" style="width: 100%; background: var(--info); padding: 12px; font-size: 15px;" onclick="guiTinNhanChoAdmin()">
+                            <i class="fas fa-paper-plane"></i> Gửi tin nhắn
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="messageModal">
+                <div class="modal-content" style="width: 500px;">
+                    <span class="close-modal" onclick="closeModal('messageModal')"><i class="fas fa-times"></i></span>
+                    <h2 style="margin-top:0; color: var(--primary); border-bottom: 2px solid var(--primary-light); padding-bottom: 10px;">
+                        <i class="fas fa-envelope-open-text"></i> Nội dung tin nhắn
+                    </h2>
+                    <div id="messageContentBody"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('profileModal')"><i class="fas fa-times"></i></span>
+            <h2 style="margin-top:0; color: var(--primary); border-bottom: 2px solid var(--primary-light); padding-bottom: 10px;">
+                <i class="fas fa-id-card"></i> Thông tin & Bằng cấp Chuyên gia
+            </h2>
+
+            <div class="profile-grid">
+                <div class="form-group">
+                    <label>Họ và tên</label>
+                    <input type="text" id="profHoTen" class="form-control" placeholder="Nhập họ tên...">
+                </div>
+
+                <div class="form-group">
+                    <label>Email liên hệ</label>
+                    <input type="email" id="profEmail" class="form-control" placeholder="Nhập email...">
+                </div>
+
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <input type="tel" id="profSoDienThoai" class="form-control" placeholder="Nhập số điện thoại...">
+                </div>
+
+                <div class="form-group">
+                    <label>Địa chỉ</label>
+                    <input type="text" id="profDiaChi" class="form-control" placeholder="Nhập địa chỉ sinh sống/làm việc...">
+                </div>
+
+                <div class="form-group">
+                    <label>Chuyên ngành tư vấn</label>
+                    <input type="text" id="profChuyenNganh" class="form-control" placeholder="VD: Bệnh lý thực vật, Cây ăn quả...">
+                </div>
+
+                <div class="form-group">
+                    <label>Cơ quan / Đơn vị công tác</label>
+                    <input type="text" id="profCoQuan" class="form-control" placeholder="VD: Viện Di truyền Nông nghiệp...">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Cập nhật Ảnh Bằng cấp / Thẻ chuyên gia (Chỉ chọn nếu muốn đổi ảnh mới)</label>
+                    <input type="file" id="profBangCap" class="form-control" accept="image/*" onchange="previewBangCap(event)">
+                    <img id="profImgPreview" src="" style="display:none;" alt="Ảnh bằng cấp hiện tại">
+                </div>
+            </div>
+
+            <div style="text-align: right; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                <button onclick="closeModal('profileModal')" class="btn-action" style="background:#999;">Hủy bỏ</button>
+                <button onclick="capNhatHoSo()" class="btn-action" style="background: var(--primary);"><i class="fas fa-save"></i> Lưu thông tin</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal-overlay" id="replyModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('replyModal')"><i class="fas fa-times"></i></span>
+            <h2 style="margin-top:0; color: var(--primary);">Tư vấn điều trị</h2>
+            <img id="modalImg" src="" class="img-preview">
+            <div class="farmer-note" id="modalFarmerNote"></div>
+            <label style="font-weight: bold; margin: 15px 0 5px 0; display: block;">Nhập đơn thuốc / Phương pháp điều trị:</label>
+            <textarea id="txtPhanHoi" class="form-control" rows="4" placeholder="Nhập câu trả lời của bác sĩ..."></textarea>
+            <div style="text-align: right;">
+                <button onclick="closeModal('replyModal')" class="btn-action" style="background:#999;">Hủy</button>
+                <button onclick="guiTuVan()" class="btn-action btn-reply">Gửi tư vấn</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="rejectModal">
+        <div class="modal-content" style="width: 400px;">
+            <span class="close-modal" onclick="closeModal('rejectModal')"><i class="fas fa-times"></i></span>
+            <h3 style="margin-top:0; color: var(--danger);">Từ chối ảnh đóng góp</h3>
+            <label style="font-weight: bold; margin-bottom: 5px; display: block;">Lý do từ chối:</label>
+            <select id="txtLyDo" class="form-control">
+                <option value="Ảnh quá mờ, không rõ lá.">Ảnh quá mờ, không rõ lá.</option>
+                <option value="Nhãn bệnh sai so với thực tế.">Nhãn bệnh sai so với thực tế.</option>
+                <option value="Ảnh không chứa cây trồng.">Ảnh không chứa cây trồng.</option>
+                <option value="Lý do khác...">Lý do khác...</option>
+            </select>
+            <div style="text-align: right;">
+                <button onclick="closeModal('rejectModal')" class="btn-action" style="background:#999;">Hủy</button>
+                <button onclick="xacNhanTuChoi()" class="btn-action btn-reject">Xác nhận từ chối</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentRecordId = 0; let currentImageId = 0;
+
+        function openTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+            if (tabId === 'tab-tintuc') taiBaiVietCuaToi();
+            if (tabId === 'tab-hopthu') taiHopThu();
+        }
+
+        window.onload = function () {
+            if (localStorage.getItem('vaiTro_BenhLa') !== 'ChuyenGia') { window.location.href = '/dangnhap.html'; return; }
+            document.getElementById('userNameDisplay').innerText = localStorage.getItem('hoTen_BenhLa');
+            taiDuLieu();
+            loadLeaderboard();
+            taiHopThu();
+        };
+
+        // --- TÍNH NĂNG QUẢN LÝ HỒ SƠ ---
+        async function moHoSoCaNhan() {
+            const userId = localStorage.getItem('id_BenhLa');
+            document.getElementById('profHoTen').value = localStorage.getItem('hoTen_BenhLa') || '';
+
+            try {
+                const res = await fetch('/api/Admin/chi-tiet-nguoi-dung/' + userId);
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('profHoTen').value = data.hoTen || '';
+                    document.getElementById('profEmail').value = data.email || '';
+                    document.getElementById('profSoDienThoai').value = data.soDienThoai || '';
+                    document.getElementById('profDiaChi').value = data.diaChi || '';
+                    document.getElementById('profChuyenNganh').value = data.chuyenNganh || '';
+                    document.getElementById('profCoQuan').value = data.coQuan || '';
+
+                    if (data.anhBangCap) {
+                        document.getElementById('profImgPreview').src = data.anhBangCap;
+                        document.getElementById('profImgPreview').style.display = 'block';
+                    }
+                }
+            } catch (e) { console.log("Chưa có API lấy hồ sơ chuyên gia"); }
+
+            document.getElementById('profileModal').style.display = 'flex';
+        }
+
+        function previewBangCap(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('profImgPreview').src = e.target.result;
+                    document.getElementById('profImgPreview').style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function capNhatHoSo() {
+            const userId = localStorage.getItem('id_BenhLa');
+            const fileInput = document.getElementById('profBangCap');
+            const formData = new FormData();
+
+            formData.append('HoTen', document.getElementById('profHoTen').value);
+            formData.append('Email', document.getElementById('profEmail').value);
+            formData.append('SoDienThoai', document.getElementById('profSoDienThoai').value);
+            formData.append('DiaChi', document.getElementById('profDiaChi').value);
+            formData.append('ChuyenNganh', document.getElementById('profChuyenNganh').value);
+            formData.append('DonViCongTac', document.getElementById('profCoQuan').value);
+
+            if (fileInput.files.length > 0) { formData.append('AnhBangCap', fileInput.files[0]); }
+
+            try {
+                const res = await fetch('/api/ChuyenGia/cap-nhat-ho-so/' + userId, {
+                    method: 'PUT',
+                    body: formData
+                });
+
+                if (res.ok) {
+                    alert("Cập nhật thông tin và bằng cấp thành công!");
+                    const tenMoi = document.getElementById('profHoTen').value;
+                    localStorage.setItem('hoTen_BenhLa', tenMoi);
+                    document.getElementById('userNameDisplay').innerText = tenMoi;
+                    closeModal('profileModal');
+                } else {
+                    alert("Lỗi: Máy chủ từ chối dữ liệu!");
+                }
+            } catch (e) { alert("Không kết nối được với máy chủ."); }
+        }
+
+        // --- DỮ LIỆU THỐNG KÊ & GIẢI ĐÁP ---
+        async function taiDuLieu() {
+            try {
+                const res = await fetch('/api/ChuyenGia/thong-ke-du-lieu');
+                const data = await res.json();
+                const tbodyNhan = document.getElementById('thongKeNhanBody'); tbodyNhan.innerHTML = '';
+                data.thongKeNhan.forEach(item => { tbodyNhan.innerHTML += `<tr><td><b>${item.loaiCay}</b></td><td>${item.nhanBenh}</td><td>${item.soLuong} ảnh</td><td><span style="color:var(--success); font-weight:bold;">${item.daDuyet} ảnh</span></td></tr>`; });
+            } catch (e) { }
+
+            try {
+                const res = await fetch('/api/ChuyenGia/yeu-cau-cho-xu-ly');
+                if (res.ok) {
+                    const data = await res.json();
+                    const badge = document.getElementById('badgeGiaiDap');
+                    if (data.length > 0) {
+                        badge.style.display = 'inline-block';
+                        badge.innerText = data.length;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+
+                    const tbody = document.getElementById('giaiDapBody');
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999; padding: 20px;">Hiện tại chưa có yêu cầu tư vấn nào mới.</td></tr>';
+                    } else {
+                        tbody.innerHTML = '';
+                        data.forEach(item => {
+                            const ghiChu = item.ghiChuCuaNongDan ? `<div class="farmer-note"><b>Nông dân hỏi:</b> "${item.ghiChuCuaNongDan}"</div>` : `<i style="color: #999;">Nông dân gửi ảnh nhờ kiểm tra lại.</i>`;
+                            const ghiChuAnToan = item.ghiChuCuaNongDan ? item.ghiChuCuaNongDan.replace(/'/g, "\\'") : '';
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td><img src="${item.tenAnh}" style="width:80px; height:80px; border-radius:8px; object-fit:cover; border: 1px solid #ddd;"></td>
+                                    <td style="color:var(--danger); font-weight:bold;">${item.loaiBenh}</td>
+                                    <td>${ghiChu}</td>
+                                    <td>
+                                        <button class="btn-action btn-reply" onclick="moModalTraLoi(${item.id || item.Id}, '${item.tenAnh}', '${ghiChuAnToan}')">
+                                            <i class="fas fa-comment-dots"></i> Trả lời
+                                        </button>
+                                    </td>
+                                </tr>`;
+                        });
+                    }
+                }
+            } catch (e) { console.error("Lỗi tải yêu cầu hỗ trợ:", e); }
+
+            try {
+                const res = await fetch('/api/ChuyenGia/anh-cho-duyet');
+                const data = await res.json();
+                const badge = document.getElementById('badgePheDuyet');
+                if (data.length > 0) { badge.style.display = 'inline-block'; badge.innerText = data.length; } else badge.style.display = 'none';
+                const tbody = document.getElementById('pheDuyetBody');
+                tbody.innerHTML = data.length === 0 ? '<tr><td colspan="5" style="text-align: center;">Đã duyệt hết ảnh.</td></tr>' : '';
+                data.forEach(item => { tbody.innerHTML += `<tr><td><img src="${item.tenAnh}" style="width:70px; height:70px; border-radius:5px; object-fit:cover;"></td><td><b>${item.loaiCay}</b></td><td>${item.nhanBenh}</td><td style="font-size:12px;">${new Date(item.ngayDongGop).toLocaleDateString()}</td><td><button class="btn-action btn-approve" onclick="xuLyDuyetAnh(${item.id || item.Id}, 1)"><i class="fas fa-check"></i> Approve</button><button class="btn-action btn-reject" onclick="moModalTuChoi(${item.id || item.Id})"><i class="fas fa-times"></i> Reject</button></td></tr>`; });
+            } catch (e) { }
+        }
+
+        function moModalTraLoi(id, anh, ghiChu) {
+            currentRecordId = id; document.getElementById('modalImg').src = anh;
+            document.getElementById('modalFarmerNote').innerHTML = ghiChu ? `<b>Câu hỏi của Nông dân:</b> ${ghiChu}` : 'Nông dân không đặt câu hỏi.'; document.getElementById('txtPhanHoi').value = '';
+            document.getElementById('replyModal').style.display = 'flex';
+        }
+
+        async function guiTuVan() {
+            const noiDung = document.getElementById('txtPhanHoi').value;
+            if (noiDung.trim() === '') return alert("Vui lòng nhập lời khuyên!");
+            const tenCG = localStorage.getItem('hoTen_BenhLa') || 'Ẩn danh';
+            const noiDungGop = tenCG + '|' + noiDung;
+
+            try {
+                const res = await fetch('/api/ChuyenGia/tra-loi/' + currentRecordId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ NoiDung: noiDungGop }) });
+                if (res.ok) { alert("Đã gửi đơn thuốc thành công!"); document.getElementById('replyModal').style.display = 'none'; taiDuLieu(); }
+            } catch (e) { alert("Lỗi kết nối máy chủ!"); }
+        }
+
+        async function xuLyDuyetAnh(id, trangThai, lyDo = null) {
+            try {
+                const res = await fetch('/api/ChuyenGia/duyet-anh/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ TrangThai: trangThai, LyDo: lyDo }) });
+                if (res.ok) { const data = await res.json(); alert(data.message); document.getElementById('rejectModal').style.display = 'none'; taiDuLieu(); }
+            } catch (e) { }
+        }
+
+        function moModalTuChoi(id) { currentImageId = id; document.getElementById('rejectModal').style.display = 'flex'; }
+        function xacNhanTuChoi() { xuLyDuyetAnh(currentImageId, -1, document.getElementById('txtLyDo').value); }
+        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+        function dangXuat() { if (confirm("Thoát?")) { localStorage.clear(); window.location.href = "/dangnhap.html"; } }
+
+        // --- BÀI VIẾT & TIN TỨC ---
+        async function dangBaiViet() {
+            const tieuDe = document.getElementById('postTitle').value;
+            const noiDung = document.getElementById('postContent').value;
+            const loaiCay = document.getElementById('postLoaiCay').value;
+            const fileInput = document.getElementById('postImage');
+
+            if (!tieuDe || !noiDung) return alert("Vui lòng nhập đầy đủ Tiêu đề và Nội dung!");
+            const formData = new FormData();
+            formData.append('TieuDe', tieuDe);
+            formData.append('NoiDung', noiDung);
+            formData.append('LoaiCay', loaiCay);
+            formData.append('ChuyenGiaId', localStorage.getItem('id_BenhLa'));
+            formData.append('TenChuyenGia', localStorage.getItem('hoTen_BenhLa'));
+            if (fileInput.files.length > 0) { formData.append('AnhMinhHoa', fileInput.files[0]); }
+
+            try {
+                const res = await fetch('/api/TinTuc/dang-bai', { method: 'POST', body: formData });
+                if (res.ok) {
+                    alert("Gửi bài thành công! Vui lòng chờ Admin duyệt.");
+                    document.getElementById('postTitle').value = ''; document.getElementById('postContent').value = ''; document.getElementById('postImage').value = '';
+                    taiBaiVietCuaToi();
+                }
+            } catch (e) { alert("Lỗi kết nối!"); }
+        }
+
+        async function taiBaiVietCuaToi() {
+            const cgId = localStorage.getItem('id_BenhLa');
+            try {
+                const res = await fetch('/api/TinTuc/bai-viet-cua-toi/' + cgId);
+                if (res.ok) {
+                    const data = await res.json();
+                    const list = document.getElementById('myPostsList');
+                    if (data.length === 0) { list.innerHTML = '<p style="text-align:center; color:#999;">Bạn chưa có bài viết nào.</p>'; return; }
+                    list.innerHTML = '';
+                    data.forEach(item => {
+                        let status = ""; let actionHtml = "";
+                        const tieuDeAnToan = JSON.stringify(item.tieuDe).replace(/'/g, "&#39;");
+
+                        if (item.trangThaiDuyet == 1 || item.trangThaiDuyet === true) {
+                            status = '<span style="color:var(--success); font-weight:bold;"><i class="fas fa-check-circle"></i> Đã xuất bản</span>';
+                            const safeTitle = item.tieuDe.replace(/'/g, "\\'");
+                            actionHtml = `<button onclick="yeuCauXoaBai(${item.id || item.Id}, '${safeTitle}')" style="color:#f57c00; border:none; background:none; cursor:pointer; font-size:12px; padding:0; margin-top:5px;"><i class="fas fa-paper-plane"></i> Yêu cầu Admin xóa bài</button>`;
+                        } else if (item.trangThaiDuyet == -1) {
+                            status = '<span style="color:var(--danger); font-weight:bold;"><i class="fas fa-ban"></i> Bị từ chối (Xem Hộp thư)</span>';
+                            actionHtml = `<button onclick="xoaBaiViet(${item.id || item.Id})" style="color:red; border:none; background:none; cursor:pointer; font-size:12px; padding:0; margin-top:5px;"><i class="fas fa-trash"></i> Xóa bài</button>`;
+                        } else if (item.trangThaiDuyet == -2) {
+                            status = '<span style="color:#607d8b; font-weight:bold;"><i class="fas fa-archive"></i> Đã bị thu hồi</span>';
+                            actionHtml = `<button onclick="xoaBaiViet(${item.id || item.Id})" style="color:red; border:none; background:none; cursor:pointer; font-size:12px; padding:0; margin-top:5px;"><i class="fas fa-trash"></i> Xóa bài</button>`;
+                        } else {
+                            status = '<span style="color:var(--warning); font-weight:bold;"><i class="fas fa-hourglass-half"></i> Đang chờ duyệt</span>';
+                            actionHtml = `<button onclick="xoaBaiViet(${item.id || item.Id})" style="color:red; border:none; background:none; cursor:pointer; font-size:12px; padding:0; margin-top:5px;"><i class="fas fa-trash"></i> Xóa bài</button>`;
+                        }
+                        list.innerHTML += `<div style="border-bottom: 1px solid #eee; padding: 10px 0;"><div style="font-weight:bold;">${item.tieuDe}</div><div style="font-size:12px; color:#666;">Ngày: ${new Date(item.ngayDang).toLocaleDateString()} | ${status}</div>${actionHtml}</div>`;
+                    });
+                }
+            } catch (e) { }
+        }
+
+        async function xoaBaiViet(id) {
+            if (confirm("Bạn có chắc muốn xóa bài này?")) {
+                await fetch('/api/TinTuc/xoa-bai/' + id, { method: 'DELETE' });
+                taiBaiVietCuaToi();
+            }
+        }
+
+        async function yeuCauXoaBai(idBaiViet, tieuDe) {
+            const lyDo = prompt("Nhập lý do bạn muốn yêu cầu Admin gỡ bài viết này:");
+            if (lyDo === null || lyDo.trim() === '') return;
+            const req = { NguoiGuiId: localStorage.getItem('id_BenhLa'), TenNguoiGui: localStorage.getItem('hoTen_BenhLa'), VaiTro: 'ChuyenGia', TieuDe: "YÊU CẦU GỠ BÀI: #" + idBaiViet, NoiDung: `Yêu cầu gỡ bài viết: "${tieuDe}"\nLý do: ${lyDo}`, NguoiNhanId: "0", DaDoc: false };
+            try {
+                const res = await fetch('/api/TinNhan/gui-tin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req) });
+                if (res.ok) alert("Gửi yêu cầu thành công! Admin sẽ xem xét trong mục Tin nhắn.");
+                else alert("Không thể gửi yêu cầu. Lỗi hệ thống!");
+            } catch (e) { alert("Lỗi kết nối máy chủ!"); }
+        }
+
+        // --- HỘP THƯ HỖ TRỢ ---
+        let allExpertMessages = [];
+
+        async function taiHopThu() {
+            try {
+                const res = await fetch('/api/TinNhan/danh-sach');
+                if (res.ok) {
+                    const data = await res.json();
+                    const userId = localStorage.getItem('id_BenhLa');
+
+                    allExpertMessages = data.filter(m => {
+                        const role = m.vaiTro || m.VaiTro || '';
+                        const receiverId = m.nguoiNhanId || m.NguoiNhanId || 0;
+                        return role === ('Admin_To_' + userId) || role === 'NongDan_To_ChuyenGia' || receiverId == userId;
+                    });
+
+                    // TÍNH TOÁN SO TIN CHƯA ĐỌC
+                    const soTinChuaDoc = allExpertMessages.filter(m => !m.daDoc && !m.DaDoc).length;
+                    const badge = document.getElementById('badgeHopThu');
+                    if (soTinChuaDoc > 0) { badge.style.display = 'inline-block'; badge.innerText = soTinChuaDoc; }
+                    else { badge.style.display = 'none'; }
+
+                    const inboxBody = document.getElementById('inboxBody');
+                    if (allExpertMessages.length === 0) {
+                        inboxBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Hộp thư trống.</td></tr>';
+                        return;
+                    }
+
+                    inboxBody.innerHTML = '';
+                    allExpertMessages.forEach((t, index) => {
+                        const date = new Date(t.ngayGui).toLocaleString('vi-VN');
+                        const isRead = t.daDoc === true || t.DaDoc === true;
+                        const rowStyle = isRead ? '' : 'background-color: #f4f9ff; font-weight: bold;';
+                        const titleColor = isRead ? '#666' : '#d32f2f';
+                        const statusBadge = isRead ? '' : '<span style="background-color:#d32f2f; color:white; padding:2px 8px; border-radius:10px; font-size:10px; margin-left:8px;">MỚI</span>';
+                        inboxBody.innerHTML += `<tr style="${rowStyle}"><td><b>${t.tenNguoiGui}</b></td><td><b style="color: ${titleColor};">${t.tieuDe}</b> ${statusBadge}</td><td style="font-size: 13px; color: #666;">${date}</td><td><button class="btn-action" style="background: var(--primary);" onclick="xemTinNhanHopThu(${index}, ${t.id || t.Id})"><i class="fas fa-eye"></i> Xem</button></td></tr>`;
+                    });
+                }
+            } catch (e) { console.log(e); }
+        }
+
+        async function xemTinNhanHopThu(index, id) {
+            const msg = allExpertMessages[index];
+            document.getElementById('messageContentBody').innerHTML = `<div style="margin-bottom: 10px;"><b>Từ:</b> ${msg.tenNguoiGui} (Admin)</div><div style="margin-bottom: 10px;"><b>Thời gian:</b> ${new Date(msg.ngayGui).toLocaleString('vi-VN')}</div><div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #ccc;"><b>Tiêu đề:</b> <span style="color: var(--danger); font-weight: bold;">${msg.tieuDe}</span></div><div style="background: #f9f9f9; padding: 20px; border-radius: 8px; white-space: pre-wrap; line-height: 1.6; color: #333; font-size: 14px;">${msg.noiDung}</div>`;
+            document.getElementById('messageModal').style.display = 'flex';
+            if (!msg.daDoc && !msg.DaDoc && id) {
+                try { await fetch('/api/TinNhan/danh-dau-da-doc/' + id, { method: 'PUT' }); taiHopThu(); } catch (e) { }
+            }
+        }
+
+        async function guiTinNhanChoAdmin() {
+            const tieuDe = document.getElementById('chatTitle').value; const noiDung = document.getElementById('chatContent').value;
+            if (!tieuDe || !noiDung) return alert("Vui lòng nhập đầy đủ tiêu đề và nội dung!");
+            const req = { NguoiGuiId: localStorage.getItem('id_BenhLa'), TenNguoiGui: localStorage.getItem('hoTen_BenhLa'), VaiTro: 'ChuyenGia', TieuDe: tieuDe, NoiDung: noiDung, NguoiNhanId: 0 };
+            try {
+                const res = await fetch('/api/TinNhan/gui-tin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req) });
+                if (res.ok) { alert("Đã gửi tin nhắn cho Ban quản trị thành công!"); document.getElementById('chatTitle').value = ''; document.getElementById('chatContent').value = ''; }
+            } catch (e) { alert("Lỗi kết nối máy chủ!"); }
+        }
+
+        // --- BẢNG XẾP HẠNG TOP NÔNG DÂN ---
+        async function loadLeaderboard() {
+            const tbody = document.getElementById('leaderboardBody');
+            if (!tbody) return;
+
+            try {
+                const res = await fetch('/api/PhatHien/top-dong-gop');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#999; padding: 20px;">Chưa có nông dân nào đóng góp dữ liệu hợp lệ.</td></tr>'; return; }
+
+                    tbody.innerHTML = '';
+                    data.forEach((item, index) => {
+                        let medal = '';
+                        if (index === 0) medal = '<i class="fas fa-medal" style="color: #ffd700; font-size: 24px;"></i>';
+                        else if (index === 1) medal = '<i class="fas fa-medal" style="color: #c0c0c0; font-size: 24px;"></i>';
+                        else if (index === 2) medal = '<i class="fas fa-medal" style="color: #cd7f32; font-size: 24px;"></i>';
+                        else medal = `<b style="color: #888; font-size: 16px;">#${index + 1}</b>`;
+
+                        tbody.innerHTML += `
+                                    <tr>
+                                        <td style="text-align: center;">${medal}</td>
+                                        <td>
+                                            <b style="color: #1b5e20; font-size: 15px;">${item.hoTen}</b><br>
+                                            <span style="font-size: 12px; color: #888;">ID: ND-${item.nguoiDungId}</span>
+                                        </td>
+                                        <td>
+                                            <span style="background: #fff3e0; color: #ef6c00; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">
+                                                ${item.danhHieu}
+                                            </span>
+                                        </td>
+                                        <td><b style="color: #2e7d32; font-size: 18px;">${item.soLuong}</b> <span style="font-size: 13px; color: #666;">ảnh</span></td>
+                                    </tr>`;
+                    });
+                }
+            } catch (e) {
+                console.error("Lỗi tải bảng xếp hạng:", e);
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Lỗi kết nối máy chủ!</td></tr>';
+            }
+        }
+    </script>
+</body>
+</html>

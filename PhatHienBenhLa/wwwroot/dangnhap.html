@@ -1,0 +1,305 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Hệ thống Nhận diện Bệnh Lá</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2e7d32; /* Tông màu xanh chủ đạo */
+            --primary-hover: #1b5e20;
+            --bg-color: #f4f7f6;
+            --text-color: #495057;
+            --border-color: #ced4da;
+            --error-color: #dc3545;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .login-card {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 450px;
+            box-sizing: border-box;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+            .login-header h2 {
+                color: var(--primary-color);
+                margin: 0 0 10px 0;
+                font-size: 26px;
+            }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 15px;
+            color: var(--text-color);
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: border-color 0.15s ease-in-out;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+            }
+
+            .form-control::placeholder {
+                color: #adb5bd;
+            }
+
+        /* Biểu tượng mắt xem mật khẩu */
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 14px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+            .toggle-password:hover {
+                color: var(--text-color);
+            }
+
+        /* Xử lý hiển thị lỗi */
+        .error-message {
+            color: var(--error-color);
+            font-size: 13px;
+            margin-top: 5px;
+            display: none; /* Mặc định ẩn */
+        }
+
+        .has-error .form-control {
+            border-color: var(--error-color);
+        }
+
+        .has-error .error-message {
+            display: block;
+        }
+
+        /* Cụm Remember Me & Forgot Password */
+        .options-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            color: #d87a41; /* Màu cam đất nhạt giống trong ảnh */
+            text-decoration: none;
+        }
+
+            .forgot-password:hover {
+                text-decoration: underline;
+            }
+
+        /* Nút đăng nhập */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 25px;
+        }
+
+            .btn-submit:hover {
+                background-color: var(--primary-hover);
+            }
+
+        /* Link đăng ký */
+        .register-link {
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+            .register-link a {
+                color: var(--primary-color);
+                font-weight: bold;
+                text-decoration: none;
+            }
+
+                .register-link a:hover {
+                    text-decoration: underline;
+                }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="login-header">
+            <h2>Đăng nhập hệ thống</h2>
+            <p style="color: #6c757d; font-size: 14px; margin: 0;">Quản lý và chẩn đoán bệnh cây trồng</p>
+        </div>
+
+        <form id="loginForm" novalidate>
+            <div class="form-group" id="group-username">
+                <input type="text" class="form-control" id="tenDangNhap" placeholder="Email hoặc Tên đăng nhập" required>
+                <div class="error-message">Vui lòng nhập Email hoặc Tên đăng nhập.</div>
+            </div>
+
+            <div class="form-group" id="group-password">
+                <input type="password" id="matKhau" placeholder="********" class="form-control">
+
+                <i class="fas fa-eye" id="eyeIcon" onclick="togglePassword()" style="cursor: pointer; position: absolute; right: 10px; top: 12px;"></i>
+                <div class="error-message">Vui lòng nhập Mật khẩu.</div>
+            </div>
+
+            <div class="options-group">
+                <label class="remember-me">
+                    <input type="checkbox" id="rememberMe"> Ghi nhớ tôi?
+                </label>
+                <a href="/quenmatkhau.html" class="forgot-password">Quên mật khẩu?</a>
+            </div>
+
+            <button type="submit" class="btn-submit">Đăng nhập ngay</button>
+
+            <div class="register-link">
+                Chưa có tài khoản? <a href="/dangky.html">Đăng ký thành viên mới</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault(); // Ngăn trang web tự động reload
+
+            // Lấy dữ liệu từ các ô input (Kiểm tra lại id cho khớp với HTML của bạn)
+            const tenDangNhap = document.getElementById('tenDangNhap') ? document.getElementById('tenDangNhap').value : document.querySelector('input[type="text"]').value;
+            const matKhau = document.getElementById('matKhau') ? document.getElementById('matKhau').value : document.querySelector('input[type="password"]').value;
+
+            // Hiệu ứng Loading cho nút bấm
+            const btnSubmit = document.querySelector('button[type="submit"]');
+            const originalBtnText = btnSubmit.innerHTML;
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đăng nhập...';
+            btnSubmit.disabled = true;
+
+            const req = {
+                TenDangNhap: tenDangNhap,
+                MatKhau: matKhau
+            };
+
+            try {
+                // Gửi dữ liệu lên Backend C#
+                const res = await fetch('/api/TaiKhoan/dang-nhap', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(req)
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    // ĐĂNG NHẬP THÀNH CÔNG: Lưu thông tin và chuyển trang
+                    localStorage.setItem('hoTen_BenhLa', data.hoTen);
+                    localStorage.setItem('vaiTro_BenhLa', data.vaiTro);
+                    localStorage.setItem('id_BenhLa', data.id);
+
+                    if (data.vaiTro === 'Admin') {
+                        window.location.href = '/admin.html';
+                    } else if (data.vaiTro === 'ChuyenGia') {
+                        window.location.href = '/chuyengia.html';
+                    } else {
+                        window.location.href = '/nongdan.html';
+                    }
+                } else {
+                    // XỬ LÝ KHI BỊ LỖI (SAI MẬT KHẨU, CHỜ DUYỆT, HOẶC BỊ KHÓA)
+                    if (data.isLocked) {
+                        // Hiện hộp thoại hỏi lý do xin mở khóa
+                        const lyDo = prompt("Tài khoản của bạn đã bị vô hiệu hóa.\nBạn có muốn gửi tin nhắn cho Quản trị viên để xin mở khóa không?\nHãy nhập lý do/lời nhắn của bạn vào đây:");
+
+                        if (lyDo && lyDo.trim() !== "") {
+                            // Bắn tin nhắn về Hộp thư của Admin
+                            const reqTinNhan = {
+                                NguoiGuiId: data.userId,
+                                TenNguoiGui: data.hoTen,
+                                VaiTro: data.vaiTro,
+                                TieuDe: "YÊU CẦU XEM XÉT MỞ KHÓA TÀI KHOẢN",
+                                NoiDung: "Tài khoản của tôi đang bị khóa. Xin Admin xem xét mở lại. \nLý do/Lời nhắn từ người dùng: " + lyDo
+                            };
+
+                            await fetch('/api/TinNhan/gui-tin', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(reqTinNhan)
+                            });
+
+                            alert("Đã gửi yêu cầu đến Admin thành công! Vui lòng chờ quản trị viên phản hồi.");
+                        }
+                    } else {
+                        // Báo lỗi bình thường (VD: Sai mật khẩu, Đang chờ duyệt bằng cấp...)
+                        alert(data.message);
+                    }
+                }
+            } catch (error) {
+                alert("Lỗi kết nối máy chủ! Vui lòng kiểm tra lại backend.");
+                console.error(error);
+            } finally {
+                // Trả lại trạng thái ban đầu cho nút Đăng nhập
+                btnSubmit.innerHTML = originalBtnText;
+                btnSubmit.disabled = false;
+            }
+        });
+
+
+        // HÀM ẨN/HIỆN MẬT KHẨU
+        function togglePassword() {
+            var input = document.getElementById("matKhau"); 
+            var icon = document.getElementById("eyeIcon");
+
+            if (input.type === "password") {
+                // Đang ẩn -> Chuyển sang hiện chữ
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                // Đang hiện -> Chuyển về ẩn (dấu chấm)
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+    </script>
+
+</body>
+</html>

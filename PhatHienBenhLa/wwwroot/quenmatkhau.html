@@ -1,0 +1,227 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khôi phục mật khẩu - Hệ thống Nhận diện Bệnh Lá</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --primary-hover: #1b5e20;
+            --bg-color: #f4f7f6;
+            --text-color: #495057;
+            --border-color: #ced4da;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .reset-card {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 450px;
+            box-sizing: border-box;
+        }
+
+        .reset-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+            .reset-header h2 {
+                color: var(--primary-color);
+                margin: 0 0 10px 0;
+                font-size: 24px;
+            }
+
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-size: 14px;
+                font-weight: 600;
+            }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            font-size: 15px;
+            color: var(--text-color);
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: var(--primary-color);
+            }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 36px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+            .btn-submit:hover {
+                background-color: var(--primary-hover);
+            }
+
+            .btn-submit:disabled {
+                background-color: #81c784;
+                cursor: not-allowed;
+            }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+            .back-link a {
+                color: var(--primary-color);
+                text-decoration: none;
+                font-weight: bold;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="reset-card">
+        <div class="reset-header">
+            <h2><i class="fas fa-unlock-alt"></i> Khôi phục mật khẩu</h2>
+            <p style="color: #6c757d; font-size: 14px; margin: 0;">Vui lòng nhập thông tin xác minh để tạo mật khẩu mới</p>
+        </div>
+
+        <form id="resetForm">
+            <div class="form-group">
+                <label>Tên đăng nhập của bạn</label>
+                <input type="text" class="form-control" id="tenDangNhap" placeholder="Nhập tên đăng nhập" required>
+            </div>
+
+            <div class="form-group">
+                <label>Email đã đăng ký</label>
+                <input type="email" class="form-control" id="email" placeholder="Nhập email xác minh" required>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+            <div class="form-group">
+                <label>Mật khẩu mới</label>
+                <input type="password" class="form-control" id="matKhauMoi" required>
+                <i class="fas fa-eye toggle-password" onclick="toggleVisibility('matKhauMoi', this)"></i>
+            </div>
+
+            <div class="form-group">
+                <label>Xác nhận mật khẩu mới</label>
+                <input type="password" class="form-control" id="nhapLaiMatKhau" required>
+                <i class="fas fa-eye toggle-password" onclick="toggleVisibility('nhapLaiMatKhau', this)"></i>
+            </div>
+
+            <button type="submit" class="btn-submit">Xác nhận đổi mật khẩu</button>
+
+            <div class="back-link">
+                <i class="fas fa-arrow-left"></i> <a href="/dangnhap.html">Quay lại trang Đăng nhập</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Bật/tắt mắt xem mật khẩu
+        function toggleVisibility(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+
+        // Xử lý gửi Form
+        document.getElementById('resetForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const tenDangNhap = document.getElementById('tenDangNhap').value;
+            const email = document.getElementById('email').value;
+            const matKhauMoi = document.getElementById('matKhauMoi').value;
+            const nhapLaiMatKhau = document.getElementById('nhapLaiMatKhau').value;
+
+            // Kiểm tra khớp mật khẩu
+            if (matKhauMoi !== nhapLaiMatKhau) {
+                alert("Mật khẩu mới và mật khẩu xác nhận không khớp nhau!");
+                return;
+            }
+
+            const btnSubmit = document.querySelector('.btn-submit');
+            const originalText = btnSubmit.innerHTML;
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+            btnSubmit.disabled = true;
+
+            const requestData = {
+                TenDangNhap: tenDangNhap,
+                Email: email,
+                MatKhauMoi: matKhauMoi
+            };
+
+            try {
+                const response = await fetch('/api/TaiKhoan/quen-mat-khau', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert("Cập nhật mật khẩu thành công! Bạn có thể dùng mật khẩu mới để đăng nhập.");
+                    window.location.href = '/dangnhap.html';
+                } else {
+                    alert("Lỗi: " + data.message);
+                    btnSubmit.innerHTML = originalText;
+                    btnSubmit.disabled = false;
+                }
+            } catch (error) {
+                alert("Không thể kết nối đến máy chủ.");
+                btnSubmit.innerHTML = originalText;
+                btnSubmit.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

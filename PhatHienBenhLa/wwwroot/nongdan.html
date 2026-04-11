@@ -1,0 +1,1084 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Trại Của Tôi - Hệ thống Nhận diện Bệnh Lá</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-dark: #1b5e20;
+            --primary-light: #e8f5e9;
+            --text-dark: #333;
+            --text-gray: #666;
+            --border: #e0e0e0;
+            --bg-body: #f4f7f6;
+            --white: #ffffff;
+            --danger: #d32f2f;
+            --warning: #f57c00;
+            --success: #388e3c;
+            --info: #0288d1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: var(--white);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background-color: var(--primary);
+            color: var(--white);
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 60px;
+            box-sizing: border-box;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+            flex: 1;
+        }
+
+            .sidebar-menu li.tab-btn {
+                padding: 15px 25px;
+                cursor: pointer;
+                transition: 0.3s;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                color: var(--text-gray);
+                font-weight: 500;
+                position: relative;
+                background: transparent;
+                border: none;
+                border-right: 4px solid transparent;
+                width: 100%;
+                text-align: left;
+                font-size: 15px;
+                box-sizing: border-box;
+            }
+
+                .sidebar-menu li.tab-btn:hover, .sidebar-menu li.tab-btn.active {
+                    background-color: var(--primary-light);
+                    color: var(--primary);
+                    border-right-color: var(--primary);
+                }
+
+            .sidebar-menu i {
+                width: 20px;
+                text-align: center;
+                font-size: 18px;
+            }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .topbar {
+            height: 60px;
+            background-color: var(--white);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-trigger {
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+        }
+
+            .profile-trigger:hover {
+                background-color: var(--primary-light);
+                color: var(--primary-dark);
+                border: 1px solid #a5d6a7;
+            }
+
+        .btn-logout {
+            background-color: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 6px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+            .btn-logout:hover {
+                background-color: var(--danger);
+                color: white;
+            }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 30px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s;
+        }
+
+            .tab-content.active {
+                display: block;
+            }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+            .card h3 {
+                margin-top: 0;
+                color: var(--primary);
+                border-bottom: 2px solid var(--primary-light);
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+        }
+
+            .btn-action.active {
+                background: var(--primary);
+                color: white;
+            }
+
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            background-color: var(--primary-light);
+            cursor: pointer;
+        }
+
+        #cameraContainer {
+            display: none;
+            text-align: center;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            background: #fafafa;
+        }
+
+        #cameraStream {
+            width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            background: #000;
+            object-fit: cover;
+        }
+
+        .btn-capture {
+            background: #f57c00;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        #previewContainer {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+
+        .btn-analyze {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-top: 20px;
+            cursor: pointer;
+            display: none;
+        }
+
+        #resultContainer {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #fff3e0;
+            border: 1px solid #ffe0b2;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 8px;
+            font-weight: bold;
+        }
+
+        .history-list {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            gap: 15px;
+            flex-direction: column;
+        }
+
+        .history-main {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .history-details {
+            flex: 1;
+        }
+
+        .history-date {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-bottom: 4px;
+        }
+
+        .status-badge {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+            .form-group label {
+                display: block;
+                font-weight: bold;
+                font-size: 14px;
+                margin-bottom: 5px;
+                color: #444;
+            }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .stats-box {
+            background: #e1f5fe;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--info);
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 600px;
+            max-width: 90%;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-gray);
+        }
+
+            .close-modal:hover {
+                color: red;
+            }
+
+        /* Floating Chat Styles */
+        #floatingChatBtn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+            cursor: pointer;
+            z-index: 9999;
+        }
+
+        #chatWindow {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            z-index: 9998;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+
+        .chat-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-send-chat {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header"><i class="fas fa-leaf"></i> Trang Trại</div>
+        <ul class="sidebar-menu">
+            <li class="tab-btn active" onclick="openTab('tab-chandoan', this)"><i class="fas fa-search-plus"></i> Chẩn đoán bệnh AI</li>
+            <li class="tab-btn" onclick="openTab('tab-lichsu', this)"><i class="fas fa-history"></i> Lịch sử chẩn đoán</li>
+            <li class="tab-btn" onclick="openTab('tab-donggop', this)"><i class="fas fa-hand-holding-heart"></i> Đóng góp dữ liệu</li>
+            <li class="tab-btn" onclick="openTab('tab-camnang', this)"><i class="fas fa-book-open"></i> Cẩm nang nông nghiệp</li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div class="user-info">
+                <span class="profile-trigger" onclick="moHoSoCaNhan()" title="Bấm để cập nhật hồ sơ">
+                    Xin chào, <b id="userNameDisplay">Đang tải...</b>
+                    <i class="fas fa-user-edit" style="margin-left: 5px; font-size: 13px; color: var(--primary);"></i>
+                </span>
+                <button class="btn-logout" onclick="dangXuat()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div id="tab-chandoan" class="tab-content active">
+                <div class="card" style="max-width: 600px; margin: 0 auto;">
+                    <h3><i class="fas fa-microchip"></i> AI Chẩn đoán bệnh lá</h3>
+                    <div class="action-buttons">
+                        <button class="btn-action active" id="btnShowUpload" onclick="chonPhuongThuc('upload')"><i class="fas fa-upload"></i> Tải ảnh lên</button>
+                        <button class="btn-action" id="btnShowCamera" onclick="chonPhuongThuc('camera')"><i class="fas fa-camera"></i> Chụp trực tiếp</button>
+                    </div>
+
+                    <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: var(--primary); margin-bottom: 10px;"></i>
+                        <div style="font-size: 16px; color: var(--text-gray);">Nhấn hoặc kéo thả ảnh lá cây vào đây</div>
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    </div>
+
+                    <div id="cameraContainer">
+                        <video id="cameraStream" autoplay playsinline></video>
+                        <canvas id="cameraCanvas" style="display: none;"></canvas>
+                        <button class="btn-capture" onclick="chupAnhNgay()"><i class="fas fa-bullseye"></i> Chụp ngay</button>
+                    </div>
+
+                    <div id="previewContainer">
+                        <img id="imagePreview" src="" alt="Ảnh lá cây">
+                        <div id="chonLoaiCayContainer" style="margin-bottom: 15px; text-align: left; background: #e8f5e9; padding: 15px; border-radius: 8px; border: 1px dashed #2e7d32;">
+                            <label style="font-weight: bold; font-size: 14px; color: #1b5e20; display: block; margin-bottom: 8px;"><i class="fas fa-leaf"></i> Chọn loại cây:</label>
+                            <select id="selectLoaiCay" style="width: 100%; padding: 10px; border: 1px solid #81c784; border-radius: 6px; outline: none; font-size: 15px; font-weight: bold; color: #2e7d32;">
+                                <option value="San">🌿 Lá Sắn (Cassava)</option>
+                                <option value="KhoaiTay">🥔 Lá Khoai tây (Potato)</option>
+                            </select>
+                        </div>
+                        <button class="btn-analyze" id="btnAnalyze" onclick="phanTichAnh()" style="display:block;"><i class="fas fa-microchip"></i> Bắt đầu phân tích AI</button>
+                    </div>
+
+                    <div id="loadingState" style="display:none; text-align:center; margin-top:20px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 30px; color: var(--primary);"></i>
+                        <p>Hệ thống đang phân tích...</p>
+                    </div>
+
+                    <div id="resultContainer">
+                        <p style="font-size: 18px; font-weight: bold; color: var(--danger); margin: 0 0 5px 0;" id="resultName"></p>
+                        <p id="resultConfidence" style="margin:0; font-size:14px;"></p>
+                        <p style="margin-top: 10px; font-size: 14px;"><strong>Khuyến nghị:</strong> <span id="resultAdvice"></span></p>
+                        <div style="display: flex; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc;">
+                            <button class="btn-outline" id="btnCallExpert" onclick="yeuCauHoTro()" style="flex: 1; color: #1976d2; border-color: #1976d2;"><i class="fas fa-user-md"></i> Hỏi Chuyên gia</button>
+                            <button class="btn-outline" id="btnReportAdmin" onclick="baoCaoAdmin()" style="flex: 1; color: #d32f2f; border-color: #d32f2f;"><i class="fas fa-bug"></i> Báo AI sai</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-lichsu" class="tab-content">
+                <div class="card">
+                    <h3><i class="fas fa-list-alt"></i> Lịch sử khám bệnh của bạn</h3>
+                    <div class="history-list" id="historyList"></div>
+                </div>
+            </div>
+
+            <div id="tab-donggop" class="tab-content">
+                <div class="stats-box">
+                    <h4 style="margin-top:0; color: var(--info);"><i class="fas fa-award"></i> Thành tích đóng góp của bạn</h4>
+                    <div id="dongGopStats">Đang tải thống kê...</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 20px;">
+
+                    <div class="card">
+                        <h3><i class="fas fa-upload"></i> Gửi ảnh đóng góp</h3>
+                        <div class="form-group">
+                            <label>Chọn ảnh thực tế</label>
+                            <input type="file" id="fileDongGop" accept="image/*" class="form-control" multiple>
+                        </div>
+                        <div class="form-group">
+                            <label>Loại cây trồng</label>
+                            <select id="txtLoaiCay" class="form-control" style="font-weight: bold; color: #2e7d32;">
+                                <option value="Lá Sắn">🌿 Lá Sắn (Cassava)</option>
+                                <option value="Lá Khoai tây">🥔 Lá Khoai tây (Potato)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Nhãn bệnh (Nếu biết)</label>
+                            <input type="text" id="txtNhanBenh" class="form-control" placeholder="Ví dụ: Bệnh khảm lá, Khỏe mạnh...">
+                        </div>
+                        <button class="btn-analyze" style="display:block;" id="btnSubmitDongGop" onclick="guiDongGop()"><i class="fas fa-paper-plane"></i> Gửi ảnh cho Chuyên gia</button>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-images"></i> Lịch sử ảnh đã gửi</h3>
+                        <div class="history-list" id="dongGopList"></div>
+                    </div>
+
+                    <div class="card" style="background: linear-gradient(180deg, #ffffff 0%, #fff8e1 100%); border-top: 5px solid #ffb300;">
+                        <h3 style="color: #f57c00; border-bottom-color: #ffe0b2;">
+                            <i class="fas fa-trophy"></i> Bảng Vàng Vinh Danh
+                        </h3>
+                        <p style="font-size: 12px; color: #666; margin-top: -15px; margin-bottom: 20px;">
+                            Top những nông dân tích cực nhất tháng.
+                        </p>
+                        <div id="leaderboardList" style="max-height: 400px; overflow-y: auto;">
+                            <p style="text-align: center; color: #999;">Đang tải dữ liệu...</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="tab-camnang" class="tab-content">
+
+                <div id="camnangHeader" style="margin-bottom: 20px;">
+                    <h2 style="color: var(--primary);"><i class="fas fa-graduation-cap"></i> Kiến thức từ Chuyên gia</h2>
+                    <p style="color: #666;">Cập nhật những kỹ thuật chăm sóc và phòng bệnh mới nhất cho cây trồng.</p>
+                </div>
+
+                <div id="blogContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                    <p style="text-align: center; grid-column: 1/-1; padding: 50px; color: #999;">Đang tải bài viết...</p>
+                </div>
+
+                <div id="blogDetailContainer" style="display: none; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('detailModal')"><i class="fas fa-times"></i></span>
+            <h2 id="modalTitle" style="margin-top:0; color: var(--primary); border-bottom: 2px solid var(--primary-light); padding-bottom: 10px;">Chi tiết</h2>
+            <div id="modalContentBody"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('profileModal')"><i class="fas fa-times"></i></span>
+            <h2 style="margin-top:0; color: var(--primary); border-bottom: 2px solid var(--primary-light); padding-bottom: 10px;"><i class="fas fa-user-circle"></i> Thông tin cá nhân</h2>
+            <div class="form-group"><label>Họ và tên</label><input type="text" id="profHoTen" class="form-control"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="profEmail" class="form-control"></div>
+            <div class="form-group"><label>Số điện thoại</label><input type="tel" id="profSoDienThoai" class="form-control"></div>
+            <div class="form-group"><label>Địa chỉ</label><input type="text" id="profDiaChi" class="form-control"></div>
+            <div style="text-align: right; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                <button onclick="closeModal('profileModal')" class="btn-action" style="background:#999; color: white;">Hủy</button>
+                <button onclick="capNhatHoSo()" class="btn-action" style="background: var(--primary); color: white;"><i class="fas fa-save"></i> Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="floatingChatBtn" onclick="toggleChatWindow()"><i class="fas fa-comment-dots"></i></div>
+    <div id="chatWindow">
+        <div class="chat-header"><span>Hỗ trợ trực tuyến</span><i class="fas fa-times" onclick="toggleChatWindow()"></i></div>
+        <div style="padding: 15px;">
+            <select id="chatRecipient" style="width:100%; margin-bottom:10px; padding:8px;"><option value="Admin">Hỗ trợ Web</option><option value="ChuyenGia">Hỏi Chuyên gia</option></select>
+            <input type="text" id="chatTitle" placeholder="Tiêu đề" style="width:100%; margin-bottom:10px; padding:8px;">
+            <textarea id="chatContent" rows="3" placeholder="Nội dung" style="width:100%; margin-bottom:10px; padding:8px;"></textarea>
+            <button class="btn-send-chat" onclick="guiTinNhanWidget()">Gửi</button>
+        </div>
+    </div>
+
+    <script>
+        // HÀM CHUYỂN TAB 
+        function openTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+
+            if (tabId === 'tab-lichsu') taiLichSuChanDoan();
+            if (tabId === 'tab-donggop') {
+                taiLichSuDongGop();
+                loadLeaderboard(); //tải bảng vàng
+            }
+            if (tabId === 'tab-camnang') loadBlogPosts(); // Gọi hàm tải tin tức
+        }
+
+        // HỒ SƠ
+        async function moHoSoCaNhan() {
+            const userId = localStorage.getItem('id_BenhLa');
+            try {
+                const res = await fetch('/api/Admin/chi-tiet-nguoi-dung/' + userId);
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('profHoTen').value = data.hoTen || '';
+                    document.getElementById('profEmail').value = data.email || '';
+                    document.getElementById('profSoDienThoai').value = data.soDienThoai || '';
+                    document.getElementById('profDiaChi').value = data.diaChi || '';
+                }
+            } catch (e) { }
+            document.getElementById('profileModal').style.display = 'flex';
+        }
+
+        async function capNhatHoSo() {
+            const userId = localStorage.getItem('id_BenhLa');
+            const formData = new FormData();
+            formData.append('HoTen', document.getElementById('profHoTen').value);
+            formData.append('Email', document.getElementById('profEmail').value);
+            formData.append('SoDienThoai', document.getElementById('profSoDienThoai').value);
+            formData.append('DiaChi', document.getElementById('profDiaChi').value);
+            try {
+                const res = await fetch('/api/PhatHien/cap-nhat-ho-so-nong-dan/' + userId, { method: 'PUT', body: formData });
+                if (res.ok) {
+                    alert("Cập nhật thành công!");
+                    document.getElementById('userNameDisplay').innerText = document.getElementById('profHoTen').value;
+                    closeModal('profileModal');
+                }
+            } catch (e) { }
+        }
+
+        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+
+        // AI CHẨN ĐOÁN
+        let currentFile = null; let currentLichSuId = 0; let videoStream = null;
+        function chonPhuongThuc(p) {
+            resetUpload();
+            if (p === 'upload') {
+                dongCamera();
+                document.getElementById('dropZone').style.display = 'block';
+                document.getElementById('cameraContainer').style.display = 'none';
+                document.getElementById('fileInput').click();
+            }
+            else {
+                document.getElementById('dropZone').style.display = 'none';
+                document.getElementById('cameraContainer').style.display = 'block';
+                moCamera();
+            }
+        }
+
+        async function moCamera() {
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                document.getElementById('cameraStream').srcObject = videoStream;
+            } catch (e) { }
+        }
+        function dongCamera() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(t => t.stop());
+                videoStream = null;
+            }
+        }
+        function chupAnhNgay() {
+            const video = document.getElementById('cameraStream'); const canvas = document.getElementById('cameraCanvas');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            dongCamera(); document.getElementById('cameraContainer').style.display = 'none';
+            canvas.toBlob(blob => handleFile(new File([blob], "capture.jpg", { type: "image/jpeg" })));
+        }
+
+        document.getElementById('fileInput').addEventListener('change', e => handleFile(e.target.files[0]));
+        function handleFile(file) {
+            if (file) {
+                currentFile = file; const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('imagePreview').src = e.target.result;
+                    document.getElementById('previewContainer').style.display = 'block';
+                    document.getElementById('dropZone').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function phanTichAnh() {
+            if (!currentFile) return;
+            document.getElementById('loadingState').style.display = 'block';
+            const formData = new FormData();
+            formData.append('hinhAnh', currentFile);
+            formData.append('nguoiDungId', localStorage.getItem('id_BenhLa'));
+            formData.append('loaiCay', document.getElementById('selectLoaiCay').value);
+            try {
+                const res = await fetch('/api/PhatHien/phan-tich', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (res.ok) {
+                    currentLichSuId = data.idLichSu;
+                    document.getElementById('resultName').innerText = "Kết quả: " + data.loaiBenh;
+                    document.getElementById('resultConfidence').innerText = "Độ tin cậy: " + (data.doTinCay * 100).toFixed(1) + "%";
+                    document.getElementById('resultAdvice').innerText = data.loaiBenh.includes("Khỏe") ? "Cây tốt." : "Cần phun thuốc.";
+                    document.getElementById('loadingState').style.display = 'none'; document.getElementById('resultContainer').style.display = 'block';
+                }
+            } catch (e) { }
+        }
+
+        function resetUpload() {
+            document.getElementById('previewContainer').style.display = 'none';
+            document.getElementById('resultContainer').style.display = 'none';
+            document.getElementById('dropZone').style.display = 'block';
+        }
+
+        // ==========================================
+        // CÁC HÀM XỬ LÝ NÚT HỖ TRỢ DƯỚI KẾT QUẢ AI
+        // ==========================================
+
+        // 1. Nút "Hỏi Chuyên gia"
+        async function yeuCauHoTro() {
+            if (!currentLichSuId || currentLichSuId === 0) return alert("Vui lòng phân tích ảnh trước!");
+
+            try {
+                // Gửi thẳng API với GhiChu để trống (hoặc tự động điền 1 câu mặc định)
+                const res = await fetch('/api/PhatHien/yeu-cau-ho-tro/' + currentLichSuId, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ GhiChu: "" }) // Bỏ khung prompt, gửi chuỗi rỗng
+                });
+
+                if (res.ok) {
+                    // Đổi giao diện nút thành "Đã gửi" ngay lập tức
+                    const btn = document.getElementById('btnCallExpert');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Đã gửi chuyên gia';
+                    btn.style.backgroundColor = "#e8f5e9";
+                    btn.style.borderColor = "#388e3c";
+                    btn.style.color = "#2e7d32";
+                    btn.disabled = true;
+                    btn.style.cursor = "default";
+                }
+            } catch (e) { alert("Lỗi kết nối máy chủ!"); }
+        }
+
+        // 2. Nút "Báo AI sai"
+        async function baoCaoAdmin() {
+            if (!currentLichSuId || currentLichSuId === 0) return alert("Vui lòng phân tích ảnh trước!");
+
+            if (confirm("Bạn muốn báo cáo kết quả AI này bị sai cho Quản trị viên?")) {
+                try {
+                    const res = await fetch('/api/PhatHien/bao-cao-admin/' + currentLichSuId, { method: 'PUT' });
+                    if (res.ok) {
+                        const btn = document.getElementById('btnReportAdmin');
+                        btn.innerHTML = '<i class="fas fa-check"></i> Đã gửi báo cáo';
+                        btn.style.backgroundColor = "#ffebee";
+                        btn.style.borderColor = "#d32f2f";
+                        btn.style.color = "#c62828";
+                        btn.disabled = true;
+                        btn.style.cursor = "default";
+                    }
+                } catch (e) { alert("Lỗi kết nối!"); }
+            }
+        }
+
+        // LỊCH SỬ & ĐÓNG GÓP
+        async function taiLichSuChanDoan() {
+            const userId = localStorage.getItem('id_BenhLa');
+            try {
+                const res = await fetch('/api/PhatHien/lich-su/' + userId);
+                if (res.ok) {
+                    const data = await res.json();
+                    const list = document.getElementById('historyList');
+                    list.innerHTML = '';
+
+                    data.forEach(item => {
+                        const isHealthy = item.loaiBenh.includes("Khỏe");
+
+                        let phanHoiHtml = '';
+                        if (item.phanHoiCuaChuyenGia) {
+                            let tenCG = "";
+                            let noiDung = item.phanHoiCuaChuyenGia;
+                            if (item.phanHoiCuaChuyenGia.includes('|')) {
+                                const parts = item.phanHoiCuaChuyenGia.split('|');
+                                tenCG = " " + parts[0];
+                                noiDung = parts.slice(1).join('|');
+                            }
+
+                            noiDung = noiDung.replace(/\n/g, '<br>');
+
+                            phanHoiHtml = `
+                            <div style="padding:15px; background:#e3f2fd; border-radius:8px; margin-top:12px; font-size: 14.5px; line-height: 1.6; color: #1e293b; border-left: 4px solid #1976d2;">
+                                <div style="margin-bottom: 8px;">
+                                    <b style="color: #1565c0; font-size: 15px;"><i class="fas fa-user-md"></i> Chuyên gia${tenCG}:</b>
+                                </div>
+                                <div style="color: #333;">
+                                    ${noiDung}
+                                </div>
+                            </div>`;
+                        }
+
+                        list.innerHTML += `
+                                <div class="history-item">
+                                    <div class="history-main">
+                                        <img src="${item.tenAnh}" style="width:65px; height:65px; object-fit:cover; border-radius: 8px; border: 1px solid #eee;">
+                                        <div class="history-details">
+                                            <div class="history-date">${new Date(item.ngayUpload).toLocaleString('vi-VN')}</div>
+                                            <div style="font-weight:bold; color: #333; font-size: 15px;">${item.loaiBenh}</div>
+                                        </div>
+                                        <span class="status-badge" style="background:${isHealthy ? '#388e3c' : '#d32f2f'}">${isHealthy ? 'Khỏe' : 'Bệnh'}</span>
+                                    </div>
+                                    ${phanHoiHtml}
+                                </div>`;
+                    });
+                }
+            } catch (e) { }
+        }
+
+        async function guiDongGop() {
+            const files = document.getElementById('fileDongGop').files;
+            if (files.length === 0) return alert("Chọn ảnh!");
+            for (let file of files) {
+                const formData = new FormData();
+                formData.append('hinhAnh', file);
+                formData.append('nguoiDungId', localStorage.getItem('id_BenhLa'));
+                formData.append('loaiCay', document.getElementById('txtLoaiCay').value);
+                formData.append('nhanBenh', document.getElementById('txtNhanBenh').value);
+                await fetch('/api/PhatHien/dong-gop-anh', { method: 'POST', body: formData });
+            }
+            alert("Đã gửi!"); taiLichSuDongGop();
+        }
+
+        async function taiLichSuDongGop() {
+            const userId = localStorage.getItem('id_BenhLa');
+            try {
+                const res = await fetch('/api/PhatHien/lich-su-dong-gop/' + userId);
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('dongGopStats').innerHTML = data.thongKe.join('<br>');
+                    const list = document.getElementById('dongGopList'); list.innerHTML = '';
+                    data.lsDongGop.forEach(item => {
+                        list.innerHTML += `<div class="history-item"><img src="${item.tenAnh}" style="width:50px;"> ${item.nhanBenh}</div>`;
+                    });
+                }
+            } catch (e) { }
+        }
+
+        // TIN TỨC / CẨM NANG
+        async function loadBlogPosts() {
+            try {
+                const res = await fetch('/api/TinTuc/danh-sach-cong-khai');
+                if (res.ok) {
+                    const data = await res.json(); const container = document.getElementById('blogContainer');
+                    if (data.length === 0) { container.innerHTML = 'Trống'; return; }
+                    container.innerHTML = '';
+                    data.forEach(post => {
+                        container.innerHTML += `
+                                <div class="card" onclick='openBlogPost(${JSON.stringify(post)})'>
+                                    <img src="${post.anhMinhHoa}" style="width:100%; height:150px; object-fit:cover; border-radius:5px;">
+                                    <h4>${post.tieuDe}</h4>
+                                    <small>Bởi ${post.tenChuyenGia}</small>
+                                </div>`;
+                    });
+                }
+            } catch (e) { }
+        }
+
+        // Hàm mở chi tiết bài viết 
+        function openBlogPost(post) {
+            const listContainer = document.getElementById('blogContainer');
+            const detailContainer = document.getElementById('blogDetailContainer');
+            const header = document.getElementById('camnangHeader');
+
+            // 1. Ẩn danh sách grid và header đi
+            listContainer.style.display = 'none';
+            header.style.display = 'none';
+
+            // 2. Tạo nội dung bài viết chuyên nghiệp
+            const category = post.loaiCay === 'San' ? 'Cây Sắn' : 'Khoai Tây';
+
+            detailContainer.innerHTML = `
+                <div style="margin-bottom: 30px;">
+                    <button onclick="closeBlogPost()" class="btn-outline" style="color: #555; border: 1px solid #ccc; background: white; padding: 8px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s;">
+                        <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                    </button>
+                </div>
+
+                <div style="max-width: 900px; margin: 0 auto;">
+                    <h1 style="color: var(--primary-dark); font-size: 32px; line-height: 1.4; margin-top: 0; margin-bottom: 20px;">${post.tieuDe}</h1>
+                    
+                    <div style="display: flex; flex-wrap: wrap; gap: 25px; font-size: 14px; color: #666; border-bottom: 2px solid var(--primary-light); padding-bottom: 20px; margin-bottom: 30px;">
+                        <span><i class="fas fa-user-edit" style="color: var(--primary);"></i> Chuyên gia: <b style="color: #333;">${post.tenChuyenGia}</b></span>
+                        <span><i class="fas fa-calendar-alt" style="color: var(--warning);"></i> Xuất bản: <b style="color: #333;">${new Date(post.ngayDang).toLocaleDateString('vi-VN')}</b></span>
+                        <span><i class="fas fa-tag" style="color: var(--info);"></i> Danh mục: <span style="background: var(--primary-light); color: var(--primary-dark); padding: 4px 12px; border-radius: 15px; font-weight: bold;">${category}</span></span>
+                    </div>
+
+                    <div style="text-align: center; margin-bottom: 40px;">
+                        <img src="${post.anhMinhHoa || '/img/default-news.jpg'}" style="max-width: 100%; max-height: 450px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); object-fit: cover;">
+                    </div>
+
+                    <div style="font-size: 17px; line-height: 1.9; color: #222; white-space: pre-wrap; text-align: justify;">
+                        ${post.noiDung}
+                    </div>
+
+                    <div style="margin-top: 50px; padding: 20px 25px; background: #f8fcf8; border-left: 5px solid var(--primary); border-radius: 8px;">
+                        <h4 style="margin: 0 0 10px 0; color: var(--primary-dark); font-size: 18px;"><i class="fas fa-lightbulb" style="color: #f57c00;"></i> Ghi chú từ hệ thống</h4>
+                        <p style="margin: 0; font-size: 15px; color: #555; line-height: 1.6;">Hy vọng những kiến thức trên sẽ giúp ích cho bà con trong quá trình chăm sóc vườn tược. Đừng quên dùng tính năng <b>"Chẩn đoán bệnh AI"</b> thường xuyên để theo dõi sức khỏe cây trồng nhé!</p>
+                    </div>
+                </div>
+            `;
+
+            // 3. Hiển thị container chi tiết
+            detailContainer.style.display = 'block';
+
+            // 4. Cuộn trang lên đầu mượt mà
+            document.querySelector('.main-content').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 3. Hàm quay lại danh sách
+        function closeBlogPost() {
+            document.getElementById('blogDetailContainer').style.display = 'none';
+            document.getElementById('camnangHeader').style.display = 'block';
+            document.getElementById('blogContainer').style.display = 'grid'; // Khôi phục lại grid layout
+            document.querySelector('.main-content').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+
+        // HỖ TRỢ
+        // HỖ TRỢ (GỬI TIN NHẮN)
+        async function guiTinNhanWidget() {
+            const tieuDe = document.getElementById('chatTitle').value;
+            const noiDung = document.getElementById('chatContent').value;
+            if (!tieuDe || !noiDung) return alert("Vui lòng nhập đủ thông tin!");
+
+            const loaiNguoiNhan = document.getElementById('chatRecipient').value; // 'Admin' hoặc 'ChuyenGia'
+            let vaiTroGui = 'NongDan'; // Mặc định gửi cho Admin
+
+            // NẾU NÔNG DÂN CHỌN GỬI CHO CHUYÊN GIA -> Gắn nhãn đặc biệt
+            if (loaiNguoiNhan === 'ChuyenGia') {
+                vaiTroGui = 'NongDan_To_ChuyenGia';
+            }
+
+            const req = {
+                NguoiGuiId: localStorage.getItem('id_BenhLa'),
+                TenNguoiGui: localStorage.getItem('hoTen_BenhLa'),
+                VaiTro: vaiTroGui,
+                TieuDe: tieuDe,
+                NoiDung: noiDung
+            };
+
+            await fetch('/api/TinNhan/gui-tin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req) });
+            alert("Đã gửi tin nhắn thành công!");
+
+            document.getElementById('chatTitle').value = '';
+            document.getElementById('chatContent').value = '';
+            toggleChatWindow();
+        }
+
+        function toggleChatWindow() {
+            const cw = document.getElementById('chatWindow'); cw.style.display = cw.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function dangXuat() { localStorage.clear(); window.location.href = "/dangnhap.html"; }
+
+        window.onload = function () {
+            const ten = localStorage.getItem('hoTen_BenhLa');
+            if (!ten) window.location.href = '/dangnhap.html';
+            document.getElementById('userNameDisplay').innerText = ten;
+        };
+
+        // HÀM TẢI BẢNG VÀNG VINH DANH
+        async function loadLeaderboard() {
+            const list = document.getElementById('leaderboardList');
+            try {
+                const res = await fetch('/api/PhatHien/top-dong-gop');
+                if (res.ok) {
+                    const data = await res.json();
+
+                    if (data.length === 0) {
+                        list.innerHTML = '<p style="text-align:center; color:#999; font-style: italic;">Chưa có dữ liệu xếp hạng.</p>';
+                        return;
+                    }
+
+                    list.innerHTML = '';
+                    data.forEach((item, index) => {
+                        // Xác định icon huy chương cho Top 1, 2, 3
+                        let medal = '';
+                        let bgStyle = '';
+                        if (index === 0) { medal = '<i class="fas fa-medal" style="color: #ffd700; font-size: 28px;"></i>'; bgStyle = 'background: #fffdf5; border: 1px solid #ffe082; box-shadow: 0 2px 8px rgba(255,215,0,0.2);'; }
+                        else if (index === 1) { medal = '<i class="fas fa-medal" style="color: #c0c0c0; font-size: 24px;"></i>'; bgStyle = 'background: #fafafa; border: 1px solid #eeeeee;'; }
+                        else if (index === 2) { medal = '<i class="fas fa-medal" style="color: #cd7f32; font-size: 24px;"></i>'; bgStyle = 'background: #fdfaf6; border: 1px solid #f5e6d3;'; }
+                        else { medal = `<span style="font-weight: bold; color: #9e9e9e; font-size: 18px;">#${index + 1}</span>`; bgStyle = 'border-bottom: 1px dashed #eee;'; }
+
+                        // Hiển thị từng dòng Nông dân
+                        list.innerHTML += `
+                    <div style="display: flex; align-items: center; padding: 12px; margin-bottom: 10px; border-radius: 8px; ${bgStyle}">
+                        <div style="width: 40px; text-align: center;">
+                            ${medal}
+                        </div>
+                        <div style="flex: 1; padding-left: 10px;">
+                            <div style="font-weight: bold; color: #1b5e20; font-size: 15px; margin-bottom: 2px;">
+                                ${item.hoTen}
+                            </div>
+                            <div style="font-size: 11px; color: #f57c00; font-weight: bold;">
+                                ${item.danhHieu}
+                            </div>
+                        </div>
+                        <div style="text-align: right; min-width: 60px;">
+                            <div style="font-size: 20px; font-weight: 900; color: #2e7d32;">
+                                ${item.soLuong}
+                            </div>
+                            <div style="font-size: 10px; color: #888; text-transform: uppercase;">
+                                Ảnh chuẩn
+                            </div>
+                        </div>
+                    </div>
+                `;
+                    });
+                }
+            } catch (e) {
+                list.innerHTML = '<p style="text-align:center; color:red;">Lỗi tải dữ liệu!</p>';
+            }
+        }
+    </script>
+</body>
+</html>

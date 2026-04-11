@@ -1,0 +1,1150 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Trị Hệ Thống - PlantDisease AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-dark: #1b5e20;
+            --primary-light: #e8f5e9;
+            --text-dark: #333;
+            --text-gray: #666;
+            --border: #e0e0e0;
+            --bg-body: #f4f7f6;
+            --white: #ffffff;
+            --danger: #d32f2f;
+            --warning: #f57c00;
+            --info: #0288d1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: var(--white);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background-color: var(--primary);
+            color: var(--white);
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            height: 60px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+            flex: 1;
+        }
+
+            .sidebar-menu li {
+                padding: 15px 25px;
+                cursor: pointer;
+                transition: 0.3s;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                color: var(--text-gray);
+                font-weight: 500;
+                position: relative;
+            }
+
+                .sidebar-menu li:hover, .sidebar-menu li.active {
+                    background-color: var(--primary-light);
+                    color: var(--primary);
+                    border-right: 4px solid var(--primary);
+                }
+
+            .sidebar-menu i {
+                width: 20px;
+                text-align: center;
+                font-size: 18px;
+            }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .topbar {
+            height: 60px;
+            background-color: var(--white);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            flex-shrink: 0;
+        }
+
+        .topbar-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-logout {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 6px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+            .btn-logout:hover {
+                background: var(--danger);
+                color: white;
+            }
+
+        .page-panel {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+            display: none;
+        }
+
+            .page-panel.active {
+                display: block;
+            }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 4px solid var(--primary);
+            transition: transform 0.2s;
+        }
+
+            .stat-card.clickable:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+                cursor: pointer;
+            }
+
+        .stat-info h3 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .stat-info p {
+            margin: 5px 0 0 0;
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .data-section {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+            .data-section h3 {
+                margin-top: 0;
+                color: var(--primary);
+                border-bottom: 2px solid var(--primary-light);
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+            text-align: left;
+        }
+
+        th {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .badge-notification {
+            background: var(--danger);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            position: absolute;
+            right: 20px;
+        }
+
+        .btn-action {
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            font-size: 13px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-gray);
+        }
+
+            .close-modal:hover {
+                color: red;
+            }
+
+        .detail-row {
+            margin-bottom: 12px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 8px;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: var(--text-gray);
+            font-size: 13px;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        /* MÀU SẮC & HIỆU ỨNG RIÊNG CHO PHẦN TIN TỨC */
+        .news-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 25px;
+            border-top: 5px solid var(--primary);
+            margin-bottom: 30px;
+        }
+
+        .table-modern {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+            .table-modern thead th {
+                background: #f1f8e9;
+                color: var(--primary-dark);
+                padding: 12px;
+                font-size: 13px;
+                text-transform: uppercase;
+            }
+
+            .table-modern tbody tr {
+                background: #ffffff;
+                transition: all 0.3s;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            }
+
+                .table-modern tbody tr:hover {
+                    background: #f9fdf9;
+                    transform: scale(1.005);
+                }
+
+            .table-modern td {
+                padding: 15px 12px;
+                border-top: 1px solid #f0f0f0;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+        .img-cover {
+            width: 100px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .news-preview-img {
+            width: 90px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .news-title-text {
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .news-author-info {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .badge-tag {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .category-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .tag-san {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .tag-khoai {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header"><i class="fas fa-seedling"></i> PlantDisease</div>
+        <ul class="sidebar-menu">
+            <li class="active" onclick="switchTab('dashboard', this)"><i class="fas fa-chart-line"></i> Tổng quan</li>
+            <li onclick="switchTab('usermanagement', this)"><i class="fas fa-users-cog"></i> Quản lý người dùng</li>
+            <li id="navHistory" onclick="switchTab('history', this)"><i class="fas fa-images"></i> Lịch sử chẩn đoán</li>
+            <li onclick="switchTab('aimodel', this)"><i class="fas fa-brain"></i> Huấn luyện AI</li>
+            <li onclick="switchTab('newsmanagement', this)">
+                <i class="fas fa-newspaper"></i> Quản lý tin tức
+                <span id="badgeNews" class="badge-notification" style="display:none; background: var(--warning);">0</span>
+            </li>
+            <li onclick="switchTab('inbox', this)"><i class="fas fa-envelope"></i> Hộp thư Hỗ trợ <span id="badgeInbox" class="badge-notification" style="display:none;">0</span></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div class="topbar-title" id="pageTitle">Tổng quan hệ thống</div>
+            <div class="user-info">
+                <span>Xin chào, <b id="userNameDisplay">Admin</b></span>
+                <button class="btn-logout" onclick="dangXuat()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+            </div>
+        </div>
+
+        <div id="panel-dashboard" class="page-panel active">
+            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 20px; align-items: stretch;">
+
+                <div class="stat-card" style="display: block; padding: 15px; border-bottom-color: #f57c00;">
+                    <h4 style="margin: 0 0 10px 0; color: #f57c00; font-size: 14px; border-bottom: 1px dashed #ffe0b2; padding-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+                        <i class="fas fa-trophy"></i> Top Đóng Góp
+                    </h4>
+                    <div style="max-height: 100px; overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
+                        <table style="width: 100%; border-collapse: collapse; min-width: auto;">
+                            <tbody id="leaderboardBody">
+                                <tr><td style="text-align: center; color: #999; font-size: 12px; padding: 10px;">Đang tải...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="stat-card clickable" onclick="document.querySelectorAll('.sidebar-menu li')[1].click()" style="padding: 20px;">
+                    <div class="stat-info">
+                        <h3 id="tongNguoiDung">--</h3>
+                        <p style="font-size: 13px;">Tổng thành viên</p>
+                    </div>
+                    <div class="stat-icon" style="width: 45px; height: 45px; font-size: 18px;"><i class="fas fa-users"></i></div>
+                </div>
+
+                <div class="stat-card clickable" onclick="document.getElementById('navHistory').click()" style="padding: 20px;">
+                    <div class="stat-info">
+                        <h3 id="tongLuotKham">--</h3>
+                        <p style="font-size: 13px;">Lượt chẩn đoán</p>
+                    </div>
+                    <div class="stat-icon" style="width: 45px; height: 45px; font-size: 18px;"><i class="fas fa-camera"></i></div>
+                </div>
+
+                <div class="stat-card clickable" onclick="document.querySelectorAll('.sidebar-menu li')[5].click()" style="border-bottom-color: var(--info); padding: 20px;">
+                    <div class="stat-info">
+                        <h3 id="tongTinNhanMoi" style="color: var(--info);">0</h3>
+                        <p style="font-size: 13px;">Tin nhắn mới</p>
+                    </div>
+                    <div class="stat-icon" style="background: #e1f5fe; color: var(--info); width: 45px; height: 45px; font-size: 18px;"><i class="fas fa-envelope"></i></div>
+                </div>
+
+            </div>
+
+            <div class="data-section">
+                <h3><i class="fas fa-user-plus"></i> Thành viên mới gia nhập</h3>
+                <table>
+                    <thead><tr><th>Mã ID</th><th>Họ và tên / Đăng nhập</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+                    <tbody id="topUsersBody"></tbody>
+                </table>
+            </div>
+
+            <div class="data-section">
+                <h3><i class="fas fa-history"></i> Hoạt động chẩn đoán gần đây</h3>
+                <table>
+                    <thead><tr><th>Hình ảnh</th><th>Mã Nông dân</th><th>Kết quả AI</th><th>Thời gian</th></tr></thead>
+                    <tbody id="topHistoryBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="panel-usermanagement" class="page-panel">
+            <div class="data-section" style="border-top: 4px solid #1976d2;">
+                <h3 style="color: #1976d2; border-bottom: none; margin-bottom: 10px;"><i class="fas fa-user-md"></i> Danh sách Chuyên gia Nông nghiệp</h3>
+                <table>
+                    <thead><tr style="background-color: #e3f2fd;"><th style="color: #1565c0;">ID</th><th style="color: #1565c0;">Họ và tên / Đăng nhập</th><th style="color: #1565c0;">Trạng thái</th><th style="color: #1565c0;">Liên hệ</th><th style="color: #1565c0;">Hành động</th></tr></thead>
+                    <tbody id="chuyenGiaBody"></tbody>
+                </table>
+            </div>
+
+            <div class="data-section" style="border-top: 4px solid #388e3c; margin-top: 30px;">
+                <h3 style="color: #388e3c; border-bottom: none; margin-bottom: 10px;"><i class="fas fa-leaf"></i> Danh sách Nông dân / Nhà vườn</h3>
+                <table>
+                    <thead><tr style="background-color: #e8f5e9;"><th style="color: #1b5e20;">ID</th><th style="color: #1b5e20;">Họ và tên / Đăng nhập</th><th style="color: #1b5e20;">Trạng thái</th><th style="color: #1b5e20;">Liên hệ</th><th style="color: #1b5e20;">Hành động</th></tr></thead>
+                    <tbody id="nongDanBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="panel-history" class="page-panel">
+            <div class="data-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e8f5e9; padding-bottom: 10px; margin-bottom: 20px;">
+                    <h3 style="color: #2e7d32; margin: 0;">
+                        <i class="fas fa-images"></i> Toàn bộ dữ liệu chẩn đoán của hệ thống
+                    </h3>
+
+                    <select id="filterLoaiCay" onchange="hienThiLichSu()" style="padding: 8px 15px; border: 1px solid #81c784; border-radius: 6px; outline: none; font-size: 14px; font-weight: bold; color: #2e7d32; cursor: pointer; background-color: #f1f8e9; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                        <option value="All">🌿🥔 Tất cả các loại cây</option>
+                        <option value="San">🌿 Lá Sắn (Cassava)</option>
+                        <option value="KhoaiTay">🥔 Lá Khoai tây (Potato)</option>
+                    </select>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead style="background-color: #e8f5e9; color: #1b5e20;">
+                        <tr>
+                            <th style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0;">Hình ảnh</th>
+                            <th style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0;">Thành viên (ID)</th>
+                            <th style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0;">Kết quả nhận diện (AI)</th>
+                            <th style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0;">Độ tin cậy</th>
+                            <th style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0;">Thời gian tải lên</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allHistoryBody">
+                        <tr><td colspan="5" style="text-align: center; padding: 15px;">Đang tải dữ liệu...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="panel-aimodel" class="page-panel">
+            <div class="data-section" style="border-top: 4px solid var(--warning);">
+                <h3 style="color: var(--warning); border-bottom: none; margin-bottom: 5px;">
+                    <i class="fas fa-microscope"></i> Kho Dữ Liệu Sạch (Dành cho Huấn luyện)
+                </h3>
+                <p style="font-size: 13px; color: #666; margin-bottom: 20px;">
+                    Đây là các hình ảnh đã được Chuyên gia nông nghiệp xác nhận nhãn bệnh chính xác 100%.
+                </p>
+                <table>
+                    <thead>
+                        <tr style="background-color: #fff3e0;">
+                            <th style="color: #e65100;">Hình ảnh</th>
+                            <th style="color: #e65100;">Phân loại (Thư mục)</th>
+                            <th style="color: #e65100;">Người đóng góp</th>
+                            <th style="color: #e65100;">Ngày duyệt</th>
+                            <th style="color: #e65100;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="aiTrainingBody">
+                        <tr><td colspan="5" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="panel-newsmanagement" class="page-panel">
+            <div class="news-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin:0; color: var(--primary-dark);"><i class="fas fa-clipboard-check"></i> Quản lý Cẩm nang / Bài viết</h3>
+                </div>
+
+                <div style="margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+                    <button class="btn-action active" id="btnTabNews0" onclick="filterNewsTab(0)" style="background: var(--warning); color: white;"><i class="fas fa-hourglass-half"></i> Đang chờ duyệt</button>
+                    <button class="btn-action" id="btnTabNews1" onclick="filterNewsTab(1)" style="background: var(--primary); color: white;"><i class="fas fa-check-double"></i> Lịch sử Đã xuất bản</button>
+                    <button class="btn-action" id="btnTabNews-2" onclick="filterNewsTab(-2)" style="background: #607d8b; color: white;"><i class="fas fa-archive"></i> Lịch sử Thu hồi</button>
+                    <button class="btn-action" id="btnTabNews-1" onclick="filterNewsTab(-1)" style="background: #9e9e9e; color: white;"><i class="fas fa-ban"></i> Lịch sử Không duyệt</button>
+                </div>
+
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Ảnh bìa</th>
+                            <th>Thông tin bài viết</th>
+                            <th>Danh mục</th>
+                            <th>Thời gian</th>
+                            <th style="text-align: center;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="newsPendingBody">
+                        <tr><td colspan="5" style="text-align: center; padding: 40px; color: #999;">Đang tải danh sách bài viết...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="rejectNewsModal">
+            <div class="modal-content" style="width: 450px;">
+                <span class="close-modal" onclick="closeModal('rejectNewsModal')"><i class="fas fa-times"></i></span>
+                <h3 style="margin-top:0; color: var(--danger);"><i class="fas fa-ban"></i> Không phê duyệt bài viết</h3>
+                <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Bài viết sẽ được chuyển vào Lịch sử không duyệt. Vui lòng gửi lý do để Chuyên gia có thể sửa lại.</p>
+
+                <label style="font-weight: bold; margin-bottom: 5px; display: block;">Lý do không duyệt:</label>
+                <textarea id="txtRejectReason" class="form-control" rows="4" placeholder="Ví dụ: Bài viết copy từ nguồn khác, nội dung sai kiến thức, ảnh mờ..."></textarea>
+
+                <div style="text-align: right; margin-top: 20px;">
+                    <button onclick="closeModal('rejectNewsModal')" class="btn-action" style="background:#999;">Hủy</button>
+                    <button onclick="xacNhanTuChoiBai()" class="btn-action" style="background: var(--danger);">Từ chối & Gửi tin nhắn</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="panel-inbox" class="page-panel">
+            <div class="data-section">
+                <h3><i class="fas fa-inbox"></i> Hòm thư Góp ý & Yêu cầu hỗ trợ</h3>
+                <table>
+                    <thead><tr><th>Người gửi</th><th>Vai trò</th><th>Tiêu đề</th><th>Thời gian</th><th>Thao tác</th></tr></thead>
+                    <tbody id="inboxBody"><tr><td colspan="5" style="text-align: center;">Chưa có thư</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div> <div class="modal-overlay" id="detailModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('detailModal')"><i class="fas fa-times"></i></span>
+            <h2 id="modalTitle" style="margin-top:0; color: var(--primary); border-bottom: 2px solid var(--primary-light); padding-bottom: 10px;">Hồ sơ chi tiết</h2>
+            <div id="modalContentBody"></div>
+        </div>
+    </div>
+
+    <script>
+        let allUsersData = [];
+        let allMessages = [];
+        let allHistoryData = [];
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
+            element.classList.add('active');
+            document.querySelectorAll('.page-panel').forEach(panel => panel.classList.remove('active'));
+            document.getElementById('panel-' + tabId).classList.add('active');
+            document.getElementById('pageTitle').innerText = element.innerText;
+
+            if (tabId === 'newsmanagement') {
+                loadPendingNews();
+            }
+        }
+
+        window.onload = function () {
+            if (localStorage.getItem('vaiTro_BenhLa') !== 'Admin') { window.location.href = '/dangnhap.html'; return; }
+            document.getElementById('userNameDisplay').innerText = localStorage.getItem('hoTen_BenhLa');
+            loadDashboardData();
+            loadPendingNews();
+            loadLeaderboard();
+        };
+
+        // =====================================
+        // CÁC HÀM XỬ LÝ DỮ LIỆU
+        // =====================================
+        async function loadDashboardData() {
+            try {
+                const res = await fetch('/api/Admin/thong-ke');
+                const data = await res.json();
+                if (document.getElementById('tongNguoiDung')) document.getElementById('tongNguoiDung').innerText = data.tongNguoiDung;
+                if (document.getElementById('tongLuotKham')) document.getElementById('tongLuotKham').innerText = data.tongLuotKham;
+            } catch (e) { }
+
+            try {
+                const res = await fetch('/api/Admin/nguoi-dung');
+                allUsersData = await res.json();
+                renderUsers();
+            } catch (e) { }
+
+            try {
+                const res = await fetch('/api/Admin/lich-su');
+                if (res.ok) {
+                    const data = await res.json();
+
+                    // Lưu dữ liệu vào biến toàn cục để dùng cho chức năng lọc
+                    allHistoryData = data;
+                    const tbodyTop = document.getElementById('topHistoryBody');
+                    if (tbodyTop) {
+                        tbodyTop.innerHTML = '';
+                        data.slice(0, 5).forEach(item => {
+                            const color = item.loaiBenh.includes('Khỏe mạnh') || item.loaiBenh.includes('Healthy') ? '#388e3c' : '#d32f2f';
+                            tbodyTop.innerHTML += `<tr>
+                                    <td><img src="${item.tenAnh}" style="width:40px; height:40px; border-radius:5px; object-fit:cover;"></td>
+                                    <td>ND-${item.nguoiDungId}</td>
+                                    <td style="color:${color}; font-weight:bold;">${item.loaiBenh}</td>
+                                    <td style="font-size:13px; color:#666;">${new Date(item.ngayUpload).toLocaleString('vi-VN')}</td>
+                                </tr>`;
+                        });
+                    }
+                    hienThiLichSu();
+
+                    const tbodyAll = document.getElementById('allHistoryBody');
+                    if (tbodyAll) {
+                        tbodyAll.innerHTML = '';
+                        data.forEach(item => {
+                            const color = item.loaiBenh.includes('Khỏe mạnh') ? '#388e3c' : '#d32f2f';
+                            tbodyAll.innerHTML += `<tr>
+                                        <td><img src="${item.tenAnh}" style="width:50px; height:50px; border-radius:5px; object-fit:cover;"></td>
+                                        <td>ND-${item.nguoiDungId}</td>
+                                        <td style="color:${color}; font-weight:bold;">${item.loaiBenh}</td>
+                                        <td>${(item.doTinCay * 100).toFixed(1)}%</td>
+                                        <td style="font-size:13px; color:#666;">${new Date(item.ngayUpload).toLocaleString('vi-VN')}</td>
+                                    </tr>`;
+                        });
+                    }
+                    try {
+                        const res = await fetch('/api/Admin/du-lieu-huan-luyen');
+                        if (res.ok) {
+                            const data = await res.json();
+                            const tbodyAI = document.getElementById('aiTrainingBody');
+                            if (data.length === 0) {
+                                tbodyAI.innerHTML = '<tr><td colspan="5" style="text-align: center;">Kho dữ liệu hiện đang trống.</td></tr>';
+                            } else {
+                                tbodyAI.innerHTML = '';
+                                data.forEach(item => {
+                                    const fileName = `${item.loaiCay}_${item.nhanBenh}.jpg`.replace(/\s+/g, '');
+                                    tbodyAI.innerHTML += `<tr>
+                                                <td><img src="${item.tenAnh}" style="width: 70px; height: 70px; border-radius: 5px; object-fit: cover; border: 1px solid #ccc;"></td>
+                                                <td>
+                                                    <div style="font-weight: bold; color: #2e7d32;">${item.loaiCay}</div>
+                                                    <div style="font-size: 13px; color: #d32f2f; font-weight: bold;">[${item.nhanBenh}]</div>
+                                                </td>
+                                                <td>ND-${item.nguoiDungId}</td>
+                                                <td style="font-size: 13px; color: #666;">${new Date(item.ngayDongGop).toLocaleDateString('vi-VN')}</td>
+                                                <td>
+                                                    <a href="${item.tenAnh}" download="${fileName}" class="btn-action" style="background-color: #f57c00; text-decoration: none; display: inline-block;">
+                                                        <i class="fas fa-download"></i> Tải ảnh
+                                                    </a>
+                                                </td>
+                                            </tr>`;
+                                });
+                            }
+                        }
+                    } catch (e) { }
+                }
+            } catch (e) { }
+
+            try {
+                const res = await fetch('/api/TinNhan/danh-sach');
+                if (res.ok) {
+                    let rawMessages = await res.json();
+                    allMessages = rawMessages.filter(m => {
+                        const role = m.vaiTro || m.VaiTro || '';
+                        return !role.startsWith('Admin') && role !== 'NongDan_To_ChuyenGia';
+                    });
+                    const inboxBody = document.getElementById('inboxBody');
+                    const soTinChuaDoc = allMessages.filter(m => m.daDoc !== true && m.DaDoc !== true).length;
+                    if (allMessages.length === 0) {
+                        inboxBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Chưa có thư</td></tr>';
+                    } else {
+                        inboxBody.innerHTML = '';
+                        allMessages.forEach((t, index) => {
+                            const date = new Date(t.ngayGui).toLocaleString('vi-VN');
+                            const isRead = t.daDoc === true || t.DaDoc === true;
+                            const rowStyle = isRead ? '' : 'background-color: #f4f9ff; font-weight: bold;';
+                            const titleColor = isRead ? '#666' : '#d32f2f';
+                            const statusBadge = isRead
+                                ? '<span style="color:#9e9e9e; font-size:11px; font-weight:normal; margin-left:8px;"><i class="fas fa-check-double"></i> Đã xem</span>'
+                                : '<span style="background-color:#d32f2f; color:white; padding:2px 6px; border-radius:10px; font-size:10px; font-weight:bold; margin-left:8px;">MỚI</span>';
+                            inboxBody.innerHTML += `<tr style="${rowStyle}">
+                                        <td><b>${t.tenNguoiGui}</b></td>
+                                        <td><span style="background: #e3f2fd; color: #1565c0; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">${t.vaiTro}</span></td>
+                                        <td><b style="color: ${titleColor};">${t.tieuDe}</b> ${statusBadge}</td>
+                                        <td style="font-size: 13px; color: #666; font-weight: normal;">${date}</td>
+                                        <td><button class="btn-action" onclick="xemTinNhan(${index}, ${t.id || t.Id})" style="background-color: #3b82f6;"><i class="fas fa-eye"></i> Đọc thư</button></td>
+                                    </tr>`;
+                        });
+                        if (document.getElementById('tongTinNhanMoi')) document.getElementById('tongTinNhanMoi').innerText = soTinChuaDoc;
+                        if (document.getElementById('badgeInbox')) {
+                            document.getElementById('badgeInbox').innerText = soTinChuaDoc;
+                            document.getElementById('badgeInbox').style.display = soTinChuaDoc > 0 ? 'block' : 'none';
+                        }
+                    }
+                }
+            } catch (e) { }
+        }
+
+        async function xemTinNhan(index, id) {
+            const msg = allMessages[index];
+            document.getElementById('modalTitle').innerText = "Chi tiết lời nhắn";
+            document.getElementById('modalContentBody').innerHTML = `
+                        <div class="detail-row"><span class="detail-label">Người gửi:</span> <b>${msg.tenNguoiGui}</b> (ID: ${msg.nguoiGuiId})</div>
+                        <div class="detail-row"><span class="detail-label">Thời gian:</span> ${new Date(msg.ngayGui).toLocaleString('vi-VN')}</div>
+                        <div class="detail-row"><span class="detail-label">Tiêu đề:</span> <b style="color: #d32f2f; font-size: 15px;">${msg.tieuDe}</b></div>
+                        <div class="detail-row" style="border: none;">
+                            <span class="detail-label">Nội dung:</span>
+                            <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-top: 5px; white-space: pre-wrap; font-size: 14px; line-height: 1.5; color: #333;">${msg.noiDung}</div>
+                        </div>`;
+            document.getElementById('detailModal').style.display = 'flex';
+            const isRead = msg.daDoc === true || msg.DaDoc === true;
+            if (!isRead && id) {
+                try {
+                    await fetch('/api/TinNhan/danh-dau-da-doc/' + id, { method: 'PUT' });
+                    loadDashboardData();
+                } catch (e) { }
+            }
+        }
+
+        function renderUsers() {
+            const topBody = document.getElementById('topUsersBody');
+            const cgBody = document.getElementById('chuyenGiaBody');
+            const ndBody = document.getElementById('nongDanBody');
+
+            if (topBody) topBody.innerHTML = '';
+            if (cgBody) cgBody.innerHTML = '';
+            if (ndBody) ndBody.innerHTML = '';
+
+            allUsersData.forEach((u, index) => {
+                let trangThaiHtml = ''; let thaoTacHtml = ''; let rowStyle = '';
+                const isLocked = u.daBiKhoa === true || u.DaBiKhoa === true;
+                const isApproved = u.trangThaiDuyet === true || u.TrangThaiDuyet === true;
+                const role = u.vaiTro || u.VaiTro;
+                const userId = u.id || u.Id;
+                const userName = u.hoTen || u.HoTen;
+                const userLogin = u.tenDangNhap || u.TenDangNhap;
+                const userEmail = u.email || u.Email;
+
+                if (isLocked) {
+                    rowStyle = 'opacity: 0.6; background-color: #f9f9f9;';
+                    trangThaiHtml = `<span style="background-color: #9e9e9e; color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;"><i class="fas fa-user-lock"></i> Dừng hoạt động</span>`;
+                    thaoTacHtml = `<button class="btn-action" onclick="moKhoaTaiKhoan(${userId}, '${userName}')" style="background-color: #d32f2f;"><i class="fas fa-lock"></i> Đã khóa</button>`;
+                } else {
+                    if (role === 'ChuyenGia' && !isApproved) {
+                        trangThaiHtml = `<span style="background-color: #f57c00; color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">Chờ duyệt</span>`;
+                        thaoTacHtml += `<button class="btn-action" onclick="duyetBangCap(${userId})" style="background-color: #f57c00;">Duyệt</button>`;
+                    } else if (role === 'ChuyenGia') {
+                        trangThaiHtml = `<span style="background-color: #1976d2; color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">Đã xác thực</span>`;
+                    } else {
+                        trangThaiHtml = `<span style="background-color: #388e3c; color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">Đang hoạt động</span>`;
+                    }
+                    thaoTacHtml += `<button class="btn-action" onclick="khoaTaiKhoan(${userId}, '${userName}')" style="background-color: #d32f2f;"><i class="fas fa-ban"></i> Khóa</button>`;
+                }
+
+                thaoTacHtml += `<button class="btn-action" onclick="xemChiTiet(${userId})" style="background-color: #3b82f6;"><i class="fas fa-eye"></i> Xem</button>`;
+
+                const trHtml = `<tr style="${rowStyle}">
+                            <td><strong>#${userId}</strong></td>
+                            <td><b>${userName}</b><br><span style="font-size:12px; color:#888;">${userLogin}</span></td>
+                            <td>${role}<br>${trangThaiHtml}</td>
+                            <td>${userEmail}</td>
+                            <td>${thaoTacHtml}</td>
+                        </tr>`;
+
+                if (role === 'ChuyenGia') { if (cgBody) cgBody.innerHTML += trHtml; }
+                else { if (ndBody) ndBody.innerHTML += trHtml; }
+                if (topBody && index < 5) topBody.innerHTML += trHtml;
+            });
+        }
+        
+        function hienThiLichSu() {
+            const tbodyAll = document.getElementById('allHistoryBody');
+            if (!tbodyAll) return;
+
+            const filterValue = document.getElementById('filterLoaiCay').value;
+
+            const filteredData = allHistoryData.filter(item => {
+                if (filterValue === 'All') return true;
+
+                if (item.loaiCay && item.loaiCay !== '') {
+                    return item.loaiCay === filterValue;
+                }
+
+                const benh = (item.loaiBenh || '').toLowerCase();
+                if (filterValue === 'San') {
+                    return benh.includes('cassava') || benh.includes('sắn');
+                } else if (filterValue === 'KhoaiTay') {
+                    return benh.includes('potato') || benh.includes('khoai tây') ||
+                        benh.includes('fungi') || benh.includes('bacteria') ||
+                        benh.includes('phytophthora') || benh.includes('nematode') ||
+                        benh.includes('sâu') || benh.includes('mốc');
+                }
+                return false;
+            });
+
+            if (filteredData.length === 0) {
+                tbodyAll.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px; color: #999;">Không có lịch sử chẩn đoán nào cho loại cây này.</td></tr>';
+                return;
+            }
+
+            tbodyAll.innerHTML = '';
+            filteredData.forEach(item => {
+                const color = item.loaiBenh.includes('Khỏe mạnh') || item.loaiBenh.includes('Healthy') ? '#388e3c' : '#d32f2f';
+                tbodyAll.innerHTML += `<tr>
+                        <td><img src="${item.tenAnh}" style="width:50px; height:50px; border-radius:5px; object-fit:cover;"></td>
+                        <td>ND-${item.nguoiDungId}</td>
+                        <td style="color:${color}; font-weight:bold;">${item.loaiBenh}</td>
+                        <td><b>${(item.doTinCay * 100).toFixed(1)}%</b></td>
+                        <td style="font-size:13px; color:#666;">${new Date(item.ngayUpload).toLocaleString('vi-VN')}</td>
+                    </tr>`;
+            });
+        }
+
+        async function duyetBangCap(id) {
+            if (confirm("Xác nhận duyệt cho Chuyên gia này?")) {
+                try {
+                    const res = await fetch('/api/Admin/duyet-chuyen-gia/' + id, { method: 'PUT' });
+                    if (res.ok) { alert("Đã xác thực chuyên gia thành công!"); loadDashboardData(); }
+                } catch (e) { }
+            }
+        }
+
+        async function khoaTaiKhoan(id, ten) {
+            if (confirm(`VÔ HIỆU HÓA tài khoản "${ten}"?`)) {
+                try {
+                    const res = await fetch('/api/Admin/khoa-tai-khoan/' + id, { method: 'PUT' });
+                    if (res.ok) { alert("Đã khóa tài khoản thành công!"); loadDashboardData(); }
+                } catch (e) { }
+            }
+        }
+
+        async function moKhoaTaiKhoan(id, ten) {
+            if (confirm(`Mở khoá tài khoản "${ten}"?`)) {
+                try {
+                    const res = await fetch('/api/Admin/mo-khoa-tai-khoan/' + id, { method: 'PUT' });
+                    if (res.ok) { alert("Mở khóa thành công!"); loadDashboardData(); }
+                } catch (e) { }
+            }
+        }
+
+        async function xemChiTiet(id) {
+            try {
+                const res = await fetch('/api/Admin/chi-tiet-nguoi-dung/' + id);
+                if (res.ok) {
+                    const user = await res.json();
+                    const bangCapHtml = user.vaiTro === 'ChuyenGia' ? `
+                                <div class="detail-row"><span class="detail-label">Chuyên ngành:</span> ${user.chuyenNganh || 'Chưa cập nhật'}</div>
+                                <div class="detail-row"><span class="detail-label">Ảnh bằng cấp:</span>
+                                    ${user.anhBangCap ? `<img src="${user.anhBangCap}" style="width:100%; border-radius:5px; margin-top:5px;">` : `<i>Chưa có</i>`}
+                                </div>` : '';
+                    document.getElementById('modalTitle').innerText = "Hồ sơ chi tiết";
+                    document.getElementById('modalContentBody').innerHTML = `
+                                <div class="detail-row"><span class="detail-label">Họ tên:</span> ${user.hoTen}</div>
+                                <div class="detail-row"><span class="detail-label">Vai trò:</span> <b>${user.vaiTro}</b></div>
+                                <div class="detail-row"><span class="detail-label">Email:</span> ${user.email}</div>
+                                ${bangCapHtml}`;
+                    document.getElementById('detailModal').style.display = 'flex';
+                }
+            } catch (e) { }
+        }
+
+        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+        function dangXuat() { if (confirm("Đăng xuất?")) { localStorage.clear(); window.location.href = "/dangnhap.html"; } }
+
+        // =====================================
+        // LOGIC QUẢN LÝ TIN TỨC / BÀI VIẾT 
+        // =====================================
+        let allNewsDataAdmin = [];
+        let currentRejectNewsId = 0;
+        let currentExpertIdForReject = 0;
+        let currentNewsTitle = '';
+
+        // 1. Tải toàn bộ bài viết từ máy chủ
+        async function loadPendingNews() {
+            try {
+                // Gọi API lấy toàn bộ bài viết
+                const res = await fetch('/api/TinTuc/tat-ca-bai-viet');
+                if (res.ok) {
+                    allNewsDataAdmin = await res.json();
+
+                    // Cập nhật số lượng bài "Chờ duyệt" lên Badge menu (Màu đỏ)
+                    const pendingCount = allNewsDataAdmin.filter(x => x.trangThaiDuyet == 0 || x.TrangThaiDuyet == 0).length;
+                    const badge = document.getElementById('badgeNews');
+                    if (badge) {
+                        badge.innerText = pendingCount;
+                        badge.style.display = pendingCount > 0 ? 'block' : 'none';
+                    }
+
+                    // Mặc định hiển thị tab "Đang chờ duyệt" (status = 0)
+                    filterNewsTab(0);
+                }
+            } catch (e) { console.log("Lỗi tải tin tức:", e); }
+        }
+
+        // 2. Hàm chuyển Tab và lọc dữ liệu tương ứng
+        function filterNewsTab(statusId) {
+            document.getElementById('btnTabNews0').style.opacity = '0.5';
+            document.getElementById('btnTabNews1').style.opacity = '0.5';
+            document.getElementById('btnTabNews-1').style.opacity = '0.5';
+            if (document.getElementById('btnTabNews-2')) document.getElementById('btnTabNews-2').style.opacity = '0.5';
+
+            document.getElementById('btnTabNews' + statusId).style.opacity = '1';
+
+            const tbody = document.getElementById('newsPendingBody');
+
+            const filteredNews = allNewsDataAdmin.filter(x => {
+                let status = x.trangThaiDuyet !== undefined ? x.trangThaiDuyet : x.TrangThaiDuyet;
+                if (status === true) status = 1;
+                if (status === false) status = 0;
+                return status == statusId;
+            });
+
+            if (filteredNews.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px; color: #999;">Không có dữ liệu trong mục này.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            filteredNews.forEach(item => {
+                const tagClass = item.loaiCay === 'San' ? 'tag-san' : 'tag-khoai';
+                const tagName = item.loaiCay === 'San' ? 'Cây Sắn' : 'Khoai Tây';
+                const idCG = item.chuyenGiaId || item.ChuyenGiaId || 0;
+                const idBaiViet = item.id || item.Id;
+
+                let actionButtons = `<button class="btn-action" onclick='viewNewsDetail(${JSON.stringify(item).replace(/'/g, "&#39;")})' style="background: var(--info);"><i class="fas fa-eye"></i> Xem</button>`;
+
+                // LOGIC HIỂN THỊ NÚT THEO TRẠNG THÁI
+                if (statusId == 0) { // Chờ duyệt
+                    actionButtons += `
+                        <button class="btn-action" onclick="approveNews(${idBaiViet})" style="background: var(--primary);"><i class="fas fa-check"></i> Duyệt</button>
+                        <button class="btn-action" onclick='moModalTuChoiBai(${idBaiViet}, ${idCG}, ${JSON.stringify(item.tieuDe || item.TieuDe).replace(/'/g, "&#39;")})' style="background: var(--danger);"><i class="fas fa-ban"></i> Từ chối</button>
+                    `;
+                } else if (statusId == 1) { // Đã xuất bản -> NÚT THU HỒI
+                    actionButtons += `<button class="btn-action" onclick="thuHoiBaiViet(${idBaiViet})" style="background: #607d8b;"><i class="fas fa-archive"></i> Thu hồi</button>`;
+                } else if (statusId == -1 || statusId == -2) { // Từ chối hoặc Đã thu hồi -> Nút Phê duyệt lại
+                    actionButtons += `<button class="btn-action" onclick="approveNews(${idBaiViet})" style="background: var(--warning);"><i class="fas fa-undo"></i> Phê duyệt lại</button>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><img src="${item.anhMinhHoa || item.AnhMinhHoa || '/img/no-image.png'}" class="news-preview-img"></td>
+                        <td>
+                            <span class="news-title-text">${item.tieuDe || item.TieuDe}</span>
+                            <span class="news-author-info"><i class="fas fa-user-tie"></i> Tác giả: ${item.tenChuyenGia || item.TenChuyenGia}</span>
+                        </td>
+                        <td><span class="category-tag ${tagClass}">${tagName}</span></td>
+                        <td style="color: #666; font-size: 13px;">${new Date(item.ngayDang || item.NgayDang).toLocaleDateString('vi-VN')}</td>
+                        <td style="text-align: center;">${actionButtons}</td>
+                    </tr>`;
+            });
+        }
+
+        //Xử lý thu hồi bài
+        async function thuHoiBaiViet(id) {
+            if (confirm("Bài viết sẽ bị gỡ khỏi trang của Nông dân. Bạn có chắc chắn muốn thu hồi?")) {
+                try {
+                    await fetch('/api/TinTuc/thu-hoi-bai/' + id, { method: 'PUT' });
+                    alert("Đã thu hồi bài viết thành công!");
+                    loadPendingNews(); // Tải lại danh sách
+                } catch (e) { alert("Lỗi kết nối!"); }
+            }
+        }
+
+        // 3. Hàm xem chi tiết bài viết (Giữ nguyên)
+        function viewNewsDetail(item) {
+            document.getElementById('modalTitle').innerText = "Xem trước bài viết";
+            document.getElementById('modalContentBody').innerHTML = `
+                <div style="text-align:center; margin-bottom:15px;">
+                    <img src="${item.anhMinhHoa}" style="max-width:100%; border-radius:8px; max-height:200px;">
+                </div>
+                <div class="detail-row"><span class="detail-label">Tiêu đề:</span> <b style="font-size:16px;">${item.tieuDe}</b></div>
+                <div class="detail-row"><span class="detail-label">Chuyên gia:</span> ${item.tenChuyenGia}</div>
+                <div class="detail-row"><span class="detail-label">Danh mục:</span> ${item.loaiCay}</div>
+                <div class="detail-row" style="border:none;">
+                    <span class="detail-label">Nội dung chia sẻ:</span>
+                    <div style="background:#f9f9f9; padding:15px; border-radius:8px; font-size:14px; line-height:1.6; white-space:pre-wrap;">${item.noiDung}</div>
+                </div>
+            `;
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        // 4. Phê duyệt bài viết
+        async function approveNews(id) {
+            if (confirm("Đồng ý xuất bản bài viết này?")) {
+                try {
+                    await fetch('/api/TinTuc/duyet-bai/' + id, { method: 'PUT' });
+                    alert("Đã duyệt bài viết!");
+                    loadPendingNews(); // Tải lại toàn bộ bảng
+                } catch (e) { alert("Lỗi kết nối!"); }
+            }
+        }
+
+        // 5. Mở Modal Từ chối bài
+        function moModalTuChoiBai(id, chuyenGiaId, tieuDe) {
+            currentRejectNewsId = id;
+            currentExpertIdForReject = chuyenGiaId;
+            currentNewsTitle = tieuDe;
+            document.getElementById('txtRejectReason').value = '';
+            document.getElementById('rejectNewsModal').style.display = 'flex';
+        }
+
+        // 6. Xác nhận Không duyệt & Tự động gửi tin nhắn
+        async function xacNhanTuChoiBai() {
+            const lyDo = document.getElementById('txtRejectReason').value;
+            if (lyDo.trim() === '') return alert("Vui lòng nhập lý do từ chối để chuyên gia biết đường sửa!");
+
+            try {
+                await fetch('/api/TinTuc/tu-choi-bai/' + currentRejectNewsId, { method: 'PUT' });
+
+                // Tự động tạo một Tin Nhắn gửi thẳng cho vị Chuyên gia đó
+                const msgReq = {
+                    NguoiGuiId: localStorage.getItem('id_BenhLa'),
+                    TenNguoiGui: 'Ban Quản Trị (Admin)',
+                    VaiTro: 'Admin_To_' + currentExpertIdForReject,
+                    TieuDe: "Bài viết của bạn chưa được phê duyệt",
+                    NoiDung: `Bài viết "${currentNewsTitle}" chưa đủ điều kiện xuất bản.\n\nLý do từ Ban Quản Trị:\n${lyDo}\n\nVui lòng điều chỉnh lại nội dung trong mục 'Chia sẻ kiến thức'.`
+                };
+
+                await fetch('/api/TinNhan/gui-tin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(msgReq)
+                });
+
+                alert("Đã từ chối bài viết và gửi thông báo thành công!");
+                closeModal('rejectNewsModal');
+                loadPendingNews();
+
+            } catch (e) { alert("Lỗi hệ thống khi từ chối bài!"); }
+        }
+
+        // HÀM TẢI BẢNG XẾP HẠNG TOP NÔNG DÂN
+        // HÀM TẢI BẢNG XẾP HẠNG (PHIÊN BẢN COMPACT CHO 4 Ô VUÔNG)
+        async function loadLeaderboard() {
+            const tbody = document.getElementById('leaderboardBody');
+            if (!tbody) return;
+
+            try {
+                const res = await fetch('/api/PhatHien/top-dong-gop');
+                if (res.ok) {
+                    const data = await res.json();
+
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td style="text-align:center; color:#999; font-size: 12px; padding: 10px;">Chưa có dữ liệu.</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = '';
+                    data.forEach((item, index) => {
+                        let medal = '';
+                        if (index === 0) medal = '<i class="fas fa-medal" style="color: #ffd700; font-size: 16px;"></i>';
+                        else if (index === 1) medal = '<i class="fas fa-medal" style="color: #c0c0c0; font-size: 14px;"></i>';
+                        else if (index === 2) medal = '<i class="fas fa-medal" style="color: #cd7f32; font-size: 14px;"></i>';
+                        else medal = `<b style="color: #999; font-size: 12px;">#${index + 1}</b>`;
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td style="padding: 6px 2px; text-align: center; border-bottom: 1px solid #f5f5f5; width: 25px;">${medal}</td>
+                                <td style="padding: 6px 2px; border-bottom: 1px solid #f5f5f5;">
+                                    <div style="color: #1b5e20; font-weight: bold; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px;">${item.hoTen}</div>
+                                    <div style="font-size: 9px; color: #ef6c00;">${item.danhHieu}</div>
+                                </td>
+                                <td style="padding: 6px 2px; text-align: right; border-bottom: 1px solid #f5f5f5;">
+                                    <b style="color: #2e7d32; font-size: 14px;">${item.soLuong}</b>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch (e) {
+                tbody.innerHTML = '<tr><td style="text-align:center; color:red; font-size: 12px;">Lỗi kết nối!</td></tr>';
+            }
+        }
+    </script>
+</body>
+</html>
