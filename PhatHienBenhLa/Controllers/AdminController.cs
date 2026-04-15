@@ -105,15 +105,24 @@ namespace PhatHienBenhLa.Controllers
         }
         // 8. LẤY DỮ LIỆU SẠCH ĐÃ ĐƯỢC CHUYÊN GIA DUYỆT ĐỂ HUẤN LUYỆN AI
         [HttpGet("du-lieu-huan-luyen")]
-        public IActionResult LayDuLieuHuanLuyen()
+        public IActionResult GetDuLieuHuanLuyen()
         {
-            // Lấy các ảnh từ bảng DongGopAnh có TrangThaiDuyet == 1 (Chuyên gia đã Approve)
-            var danhSach = _context.Set<Model.DongGopAnh>()
+            var data = _context.DanhSachDongGop
                 .Where(x => x.TrangThaiDuyet == 1)
-                .OrderByDescending(x => x.NgayDongGop)
+                .Select(x => new
+                {
+                    id = x.Id,
+                    tenAnh = x.TenAnh,
+                    nhanBenh = x.NhanBenh,
+                    loaiCay = x.LoaiCay,
+                    nguoiDungId = x.NguoiDungId,
+                    ngayDongGop = x.NgayDongGop,
+                    chuyenGiaId = x.ChuyenGiaId,
+                    tenChuyenGiaDuyet = x.TenChuyenGiaDuyet
+                })
                 .ToList();
 
-            return Ok(danhSach);
+            return Ok(data);
         }
     }
 }

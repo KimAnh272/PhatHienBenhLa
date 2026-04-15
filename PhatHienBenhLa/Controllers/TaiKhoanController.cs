@@ -57,7 +57,8 @@ namespace PhatHienBenhLa.Controllers
                 hoTen = newUser.HoTen,
                 vaiTro = newUser.VaiTro,
                 id = newUser.Id.ToString(),
-                trangThaiDuyet = newUser.TrangThaiDuyet // Trả về để Frontend biết đường xử lý
+                trangThaiDuyet = newUser.TrangThaiDuyet,// Trả về để Frontend biết đường xử lý
+                chuyenNganh = newUser.ChuyenNganh
             });
         }
 
@@ -113,7 +114,8 @@ namespace PhatHienBenhLa.Controllers
                 message = "Đăng nhập thành công!",
                 vaiTro = user.VaiTro,
                 hoTen = user.HoTen,
-                id = user.Id.ToString()
+                id = user.Id.ToString(),
+                chuyenNganh = user.ChuyenNganh
             });
         }
 

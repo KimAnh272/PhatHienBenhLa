@@ -12,5 +12,7 @@ namespace PhatHienBenhLa.Model
         public DateTime NgayDongGop { get; set; } = DateTime.Now;
         public int TrangThaiDuyet { get; set; } = 0; // 0: Chờ duyệt, 1: Đã duyệt, -1: Từ chối
         public string? LyDoTuChoi { get; set; } // Chuyên gia nhập lý do nếu ảnh mờ/sai
+        public int? ChuyenGiaId { get; set; }
+        public string?   TenChuyenGiaDuyet { get; set; }
     }
 }

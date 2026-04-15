@@ -83,27 +83,53 @@ namespace PhatHienBenhLa.Controllers
 
             string duongDanAnhDB = "/uploads/chandoan/" + fileName;
 
-            // 3. GIẢ LẬP MÔ HÌNH AI (MOCK DATA) THEO LOẠI CÂY
-            string ketQuaNhanDien = "";
+            // 3. GỌI SANG MÔ HÌNH AI PYTHON THẬT
+            string ketQuaNhanDien = "Không xác định";
             double doTinCay = 0.0;
-            Random rnd = new Random();
 
-            // Random độ tin cậy từ 75.0% đến 99.9%
-            doTinCay = Math.Round(rnd.NextDouble() * (0.999 - 0.750) + 0.750, 3);
+            string modelType = (loaiCay == "KhoaiTay") ? "YOLO" : "RESNET";
 
-            if (loaiCay == "San")
+            try
             {
-                string[] nhanSan = { "Khỏe mạnh (Healthy)", "Bệnh khảm lá (Cassava Mosaic Disease)", "Bệnh sọc nâu (Cassava Brown Streak Disease)", "Bệnh cháy lá vi khuẩn (Cassava Bacterial Blight)", "Bệnh đốm xanh (Cassava Green Mottle)" };
-                ketQuaNhanDien = nhanSan[rnd.Next(nhanSan.Length)];
+                using (var client = new System.Net.Http.HttpClient())
+                {
+                    using (var content = new MultipartFormDataContent())
+                    {
+                        // Đọc file ảnh vừa lưu để gửi sang Python
+                        using (var stream = new FileStream(filePath, FileMode.Open))
+                        {
+                            var fileContent = new StreamContent(stream);
+                            fileContent.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(hinhAnh.ContentType);
+
+                            content.Add(fileContent, "file", hinhAnh.FileName);
+                            content.Add(new StringContent(modelType), "model_type"); // Báo cho Python biết dùng mô hình nào
+                            content.Add(new StringContent(loaiCay), "loai_cay");     // Báo cho Python biết là lá Sắn hay Khoai Tây
+
+                            // Bắn dữ liệu sang cổng 8000 của Python
+                            var response = await client.PostAsync("http://localhost:8000/predict", content);
+
+                            if (response.IsSuccessStatusCode)
+                            {
+                                var resultStr = await response.Content.ReadAsStringAsync();
+
+                                // Đọc file JSON do Python trả về
+                                using (var jsonDoc = System.Text.Json.JsonDocument.Parse(resultStr))
+                                {
+                                    ketQuaNhanDien = jsonDoc.RootElement.GetProperty("loaiBenh").GetString();
+                                    doTinCay = jsonDoc.RootElement.GetProperty("doTinCay").GetDouble();
+                                }
+                            }
+                            else
+                            {
+                                return BadRequest(new { message = "Lỗi từ AI Server: Quá trình phân tích thất bại." });
+                            }
+                        }
+                    }
+                }
             }
-            else if (loaiCay == "KhoaiTay")
+            catch (Exception ex)
             {
-                string[] nhanKhoaiTay = { "Khỏe mạnh (Healthy)", "Vi khuẩn (Bacteria)", "Nấm (Fungi - Early blight)", "Mốc sương (Phytophthora - Late blight)", "Tuyến trùng (Nematode)", "Sâu/Côn trùng (Pest)" };
-                ketQuaNhanDien = nhanKhoaiTay[rnd.Next(nhanKhoaiTay.Length)];
-            }
-            else
-            {
-                return BadRequest(new { message = "Loại cây không hợp lệ trong hệ thống!" });
+                return BadRequest(new { message = "Không thể kết nối đến AI Server! Vui lòng kiểm tra lại Python. Lỗi: " + ex.Message });
             }
 
             // 4. LƯU KẾT QUẢ VÀO DATABASE ĐỂ HIỆN TRONG LỊCH SỬ
@@ -183,7 +209,32 @@ namespace PhatHienBenhLa.Controllers
 
             return Ok(new { message = "Đã báo cáo lỗi AI cho Quản trị viên để kiểm duyệt!" });
         }
+        [HttpPut("bao-cao-sai/{id}")]
+        public IActionResult BaoCaoAISai(int id)
+        {
+            try
+            {
+                var lichSu = _context.PhatHienBenhLa.FirstOrDefault(x => x.Id == id);
+                if (lichSu == null)
+                {
+                    return NotFound(new { message = "Không tìm thấy lịch sử phân tích này!" });
+                }
 
+                // Bật cờ báo cáo sai lên true để đẩy sang tab Phê duyệt của Chuyên gia/Admin
+                lichSu.BaoCaoAdmin = true;
+
+                // Nếu bảng của bạn có cột TrangThaiDuyet, hãy bật nó về 0 (Chờ duyệt)
+                // lichSu.TrangThaiDuyet = 0; 
+
+                _context.SaveChanges();
+
+                return Ok(new { message = "Báo cáo thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Lỗi máy chủ: " + ex.Message });
+            }
+        }
         // ========================================================
         // 5. API LƯU ẢNH ĐÓNG GÓP
         // ========================================================
@@ -208,7 +259,8 @@ namespace PhatHienBenhLa.Controllers
                 TenAnh = "/uploads/donggop/" + fileName,
                 LoaiCay = loaiCay,
                 NhanBenh = nhanBenh,
-                NgayDongGop = DateTime.Now // Lưu thời gian đóng góp
+                NgayDongGop = DateTime.Now, // Lưu thời gian đóng góp
+                TenChuyenGiaDuyet = ""
             };
 
             _context.Set<Model.DongGopAnh>().Add(dongGopMoi);
@@ -220,26 +272,59 @@ namespace PhatHienBenhLa.Controllers
         // ========================================================
         // 6. API LẤY LỊCH SỬ VÀ THỐNG KÊ ĐÓNG GÓP
         // ========================================================
-        [HttpGet("lich-su-dong-gop/{nguoiDungId}")]
-        public IActionResult LayLichSuDongGop(string nguoiDungId)
+        [HttpGet("lich-su-dong-gop/{userId}")]
+        public IActionResult LayLichSuDongGop(string userId)
         {
-            var danhSach = _context.Set<Model.DongGopAnh>()
-                .Where(x => x.NguoiDungId == nguoiDungId)
-                .OrderByDescending(x => x.NgayDongGop)
-                .ToList();
+            try
+            {
+                var danhSach = _context.Set<Model.DongGopAnh>()
+                    .Where(x => x.NguoiDungId == userId)
+                    .OrderByDescending(x => x.NgayDongGop)
+                    .ToList();
 
-            var thongKe = danhSach.GroupBy(x => new { x.LoaiCay, x.NhanBenh })
-                                  .Select(g => $"Đã tải lên {g.Count()} ảnh {g.Key.LoaiCay} - {g.Key.NhanBenh}").ToList();
+                var tongSo = danhSach.Count;
+                var daDuyet = danhSach.Count(x => x.TrangThaiDuyet == 1);
+                var choDuyet = danhSach.Count(x => x.TrangThaiDuyet == 0);
+                var tuChoi = danhSach.Count(x => x.TrangThaiDuyet == -1);
 
-            return Ok(new { lsDongGop = danhSach, thongKe = thongKe });
+                var thongKe = new List<string>
+                {
+                    $"Tổng số ảnh đã gửi: {tongSo}",
+                    $"Đã được phê duyệt: {daDuyet}",
+                    $"Đang chờ duyệt: {choDuyet}",
+                    $"Bị từ chối: {tuChoi}"
+                };
+
+                // Trả về dữ liệu chuẩn khớp với tên biến Javascript mong đợi
+                var lsDongGop = danhSach.Select(x => new
+                {
+                    id = x.Id,
+                    tenAnh = x.TenAnh,
+                    loaiCay = x.LoaiCay, // Gửi về để Javascript có thể Filter
+                    nhanBenh = x.NhanBenh,
+                    trangThaiDuyet = x.TrangThaiDuyet,
+                    lyDoTuChoi = x.LyDoTuChoi,
+                    ngayDongGop = x.NgayDongGop
+                }).ToList();
+
+                return Ok(new
+                {
+                    thongKe = thongKe,
+                    lsDongGop = lsDongGop
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Lỗi khi lấy lịch sử đóng góp: " + ex.Message });
+            }
         }
+
         // Top đóng góp
         [HttpGet("top-dong-gop")]
         public IActionResult GetTopDongGop()
         {
             // 1. Lọc ra các đóng góp ĐÃ ĐƯỢC DUYỆT (TrangThaiDuyet = 1)
-            // Lưu ý: Đổi tên bảng "DanhSachDongGop" thành tên bảng chứa ảnh đóng góp trong DbContext của bạn.
-            var topUsers = _context.Set<DongGopAnh>() // <--- SỬA TÊN MODEL NÀY NẾU CẦN
+            var topUsers = _context.Set<DongGopAnh>() //
                 .Where(d => d.TrangThaiDuyet == 1)
                 .GroupBy(d => d.NguoiDungId)
                 .Select(g => new {
@@ -267,13 +352,55 @@ namespace PhatHienBenhLa.Controllers
                 return new
                 {
                     NguoiDungId = t.NguoiDungId,
-                    HoTen = hoTen,          // TRẢ VỀ HỌ TÊN ĐẦY ĐỦ
+                    HoTen = hoTen,    
                     SoLuong = t.SoLuong,
-                    DanhHieu = danhHieu     // TRẢ VỀ HUY HIỆU TÍCH LŨY
+                    DanhHieu = danhHieu
                 };
             }).ToList();
 
             return Ok(result);
+        }
+
+        [HttpPost("test-mo-hinh")]
+        public async Task<IActionResult> TestMoHinhAI([FromForm] IFormFile hinhAnh, [FromForm] string loaiCay, [FromForm] string model_type)
+        {
+            if (hinhAnh == null || hinhAnh.Length == 0) return BadRequest("Chưa có ảnh!");
+
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    // 1. Chuẩn bị dữ liệu để gửi sang Server Python (cổng 5000)
+                    var content = new MultipartFormDataContent();
+
+                    // Chuyển file ảnh sang byte để gửi đi
+                    var stream = hinhAnh.OpenReadStream();
+                    var fileContent = new StreamContent(stream);
+                    content.Add(fileContent, "hinhAnh", hinhAnh.FileName);
+
+                    // Gửi kèm loại cây và loại mô hình
+                    content.Add(new StringContent(loaiCay), "loaiCay");
+                    content.Add(new StringContent(model_type), "model_type");
+
+                    // 2. Gọi sang Server Python (Địa chỉ mà bạn thấy ở CMD lúc nãy)
+                    var response = await client.PostAsync("http://127.0.0.1:5000/predict", content);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        // Trả kết quả nhận được từ Python về lại cho giao diện Admin.html
+                        return Content(result, "application/json");
+                    }
+                    else
+                    {
+                        return StatusCode(500, "Server AI Python không phản hồi hoặc bị lỗi!");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Lỗi kết nối API: " + ex.Message);
+            }
         }
     }
 }

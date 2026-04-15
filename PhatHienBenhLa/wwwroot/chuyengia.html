@@ -433,9 +433,9 @@
 
             <div id="tab-giadap" class="tab-content">
                 <div class="card">
-                    <h3><i class="fas fa-user-md"></i> Các ca bệnh Nông dân đang yêu cầu tư vấn</h3>
+                    <h3><i class="fas fa-user-md"></i> Các ca bệnh Người dùng đang yêu cầu tư vấn</h3>
                     <table>
-                        <thead><tr><th>Hình ảnh</th><th>Bệnh AI Đoán</th><th>Câu hỏi / Thắc mắc của Nông dân</th><th>Thao tác</th></tr></thead>
+                        <thead><tr><th>Hình ảnh</th><th>Bệnh AI Đoán</th><th>Câu hỏi / Thắc mắc của Người dùng</th><th>Thao tác</th></tr></thead>
                         <tbody id="giaiDapBody"></tbody>
                     </table>
                 </div>
@@ -443,14 +443,30 @@
 
             <div id="tab-pheduyet" class="tab-content">
                 <div class="card">
-                    <h3><i class="fas fa-tasks"></i> Phê duyệt dữ liệu (Crowdsourcing)</h3>
+                    <h3><i class="fas fa-tasks"></i> Phê duyệt dữ liệu </h3>
                     <p style="font-size: 13px; color: #666; margin-top: -10px; margin-bottom: 20px;">
                         Các ảnh ấn <b>"Approve"</b> sẽ được đẩy vào thư mục sạch để Admin dùng huấn luyện lại mô hình AI.
                     </p>
-                    <table>
-                        <thead><tr><th>Hình ảnh thực tế</th><th>Loại cây</th><th>Nhãn nông dân gán</th><th>Thời gian</th><th>Thao tác phê duyệt</th></tr></thead>
-                        <tbody id="pheDuyetBody"></tbody>
-                    </table>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; flex-wrap: wrap; gap: 15px;">
+
+                        <div>
+                            <button class="btn-action active" id="tabSancg" onclick="locAnhChuyenGia('Lá Sắn')" style="background: #2e7d32; color: white; padding: 10px 20px; font-size: 15px; border-radius: 6px;">🌿 Duyệt Lá Sắn</button>
+                            <button class="btn-action" id="tabKhoaicg" onclick="locAnhChuyenGia('Lá Khoai tây')" style="background: #f57c00; color: white; padding: 10px 20px; font-size: 15px; opacity: 0.5; border-radius: 6px;">🥔 Duyệt Khoai tây</button>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 10px; background: #fff8e1; padding: 6px 15px; border-radius: 8px; border: 1px dashed #ffb300;">
+                            <label style="font-weight: bold; color: #f57c00; margin: 0; white-space: nowrap;"><i class="fas fa-filter"></i> Lọc nhãn bệnh:</label>
+                            <select id="filterNhanBenhChuyenGia" onchange="renderGridAnh()" class="form-control" style="width: auto; min-width: 250px; border: none; background: transparent; color: #d32f2f; font-weight: bold; cursor: pointer; padding: 5px; outline: none;">
+                                <option value="All">-- Tất cả nhãn bệnh --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="warningChuyenNganh" style="display: none; animation: fadeIn 0.3s;"></div>
+                    <div id="gridAnhChoDuyet" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+                        <p style="grid-column: 1/-1; text-align: center; color: #999;">Đang tải dữ liệu...</p>
+                    </div>
+
                 </div>
             </div>
             <div id="tab-tintuc" class="tab-content">
@@ -566,9 +582,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Chuyên ngành tư vấn</label>
-                    <input type="text" id="profChuyenNganh" class="form-control" placeholder="VD: Bệnh lý thực vật, Cây ăn quả...">
-                </div>
+                    <label>Chuyên ngành tư vấn (Thế mạnh)</label>
+                    <select id="profChuyenNganh" class="form-control" style="font-weight: bold; color: var(--primary); border: 2px solid var(--primary-light);">
+                        <option value="Lá Sắn">🌿 Chuyên gia Cây Sắn (Cassava)</option>
+                        <option value="Lá Khoai tây">🥔 Chuyên gia Khoai tây (Potato)</option>
+                    </select>
+                 </div>
 
                 <div class="form-group">
                     <label>Cơ quan / Đơn vị công tác</label>
@@ -625,6 +644,114 @@
 
     <script>
         let currentRecordId = 0; let currentImageId = 0;
+        let tatCaAnhChoDuyet = []; 
+        let loaiCayDangDuyet = 'Lá Sắn';
+
+        const danhSachBenhCG = {
+            "Lá Sắn": [
+                "Khỏe mạnh (Healthy)",
+                "Bệnh khảm lá (Cassava Mosaic Disease)",
+                "Bệnh sọc nâu (Cassava Brown Streak Disease)",
+                "Bệnh cháy lá vi khuẩn (Cassava Bacterial Blight)",
+                "Bệnh đốm xanh (Cassava Green Mottle)"
+            ],
+            "Lá Khoai tây": [
+                "Khỏe mạnh (Healthy)",
+                "Vi khuẩn (Bacteria)",
+                "Nấm (Fungi - Early blight)",
+                "Mốc sương (Phytophthora - Late blight)",
+                "Tuyến trùng (Nematode)",
+                "Sâu/Côn trùng (Pest)",
+                "Bệnh do virus(Virus)"
+            ]
+        };
+
+        // 1. Hàm được gọi khi bấm nút Đổi loại cây (Lá Sắn / Lá Khoai Tây)
+        function locAnhChuyenGia(loaiCay) {
+            loaiCayDangDuyet = loaiCay;
+
+            // Đổi hiệu ứng làm mờ Tab không được chọn
+            document.getElementById('tabSancg').style.opacity = loaiCay === 'Lá Sắn' ? '1' : '0.5';
+            document.getElementById('tabKhoaicg').style.opacity = loaiCay === 'Lá Khoai tây' ? '1' : '0.5';
+
+            // Cập nhật các Option cho Dropdown Bệnh
+            const selectBenh = document.getElementById('filterNhanBenhChuyenGia');
+            selectBenh.innerHTML = '<option value="All">-- Tất cả nhãn bệnh --</option>';
+            if (danhSachBenhCG[loaiCay]) {
+                danhSachBenhCG[loaiCay].forEach(benh => {
+                    selectBenh.innerHTML += `<option value="${benh}">${benh}</option>`;
+                });
+            }
+
+            // Xử lý Cảnh báo Chuyên môn mềm
+            const chuyenNganhCuaToi = localStorage.getItem('chuyenNganh_BenhLa') || 'Lá Sắn';
+            const warningDiv = document.getElementById('warningChuyenNganh');
+            if (loaiCay !== chuyenNganhCuaToi) {
+                warningDiv.innerHTML = `
+                    <div style="background: #fff3e0; color: #e65100; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ff9800; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 18px;"></i> 
+                        <div><b>Gợi ý hệ thống:</b> Nhóm cây này không thuộc chuyên ngành chính (<b>${chuyenNganhCuaToi}</b>). Vui lòng kiểm tra kỹ trước khi phê duyệt!</div>
+                    </div>`;
+                warningDiv.style.display = 'block';
+            } else {
+                warningDiv.style.display = 'none';
+            }
+
+            // Gọi hàm render dữ liệu ra Lưới
+            renderGridAnh();
+        }
+
+        // 2. Hàm vẽ Lưới ảnh dựa vào cả Loại cây và Nhãn bệnh
+        function renderGridAnh() {
+            const container = document.getElementById('gridAnhChoDuyet');
+            const nhanBenhCanLoc = document.getElementById('filterNhanBenhChuyenGia').value;
+
+            // Lọc theo loại cây trước
+            let anhDaLoc = tatCaAnhChoDuyet.filter(x =>
+                x.loaiCay === loaiCayDangDuyet ||
+                (loaiCayDangDuyet === 'Lá Sắn' && x.loaiCay === 'San') ||
+                (loaiCayDangDuyet === 'Lá Khoai tây' && x.loaiCay === 'KhoaiTay')
+            );
+
+            // Lọc tiếp theo Nhãn bệnh
+            if (nhanBenhCanLoc !== 'All') {
+                anhDaLoc = anhDaLoc.filter(x => x.nhanBenh === nhanBenhCanLoc);
+            }
+
+            container.innerHTML = '';
+
+            if (anhDaLoc.length === 0) {
+                container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 30px;">Không có ảnh <b>${loaiCayDangDuyet}</b> ${nhanBenhCanLoc !== 'All' ? `chờ duyệt với nhãn <b>[${nhanBenhCanLoc}]</b>` : 'nào đang chờ duyệt lúc này.'}</p>`;
+                return;
+            }
+
+            // Đổ dữ liệu ra dạng Card
+            anhDaLoc.forEach(item => {
+                const idAnh = item.id || item.Id;
+                const ngayDongGop = new Date(item.ngayDongGop || item.NgayDongGop).toLocaleDateString('vi-VN');
+
+                container.innerHTML += `
+                    <div style="background: white; padding: 15px; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: 0.3s;" onmouseover="this.style.boxShadow='0 4px 15px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)'">
+                        <img src="${item.tenAnh}" style="width:100%; height:180px; object-fit:cover; border-radius:8px; border: 1px solid #ccc; margin-bottom: 10px;">
+                        
+                        <div style="font-size: 13px; color: #666; display: flex; justify-content: space-between;">
+                            <span><i class="fas fa-user"></i> ND-${item.nguoiDungId || item.NguoiDungId}</span>
+                            <span><i class="fas fa-clock"></i> ${ngayDongGop}</span>
+                        </div>
+
+                        <p style="margin: 8px 0; font-size: 14px;">Bệnh đề xuất:</p>
+                        <div style="font-weight: bold; color: #d32f2f; background: #ffebee; padding: 6px 10px; border-radius: 6px; text-align: center; margin-bottom: 15px; min-height: 40px; display: flex; align-items: center; justify-content: center;">
+                            ${item.nhanBenh}
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="xuLyDuyetAnh(${idAnh}, 1)" class="btn-action btn-approve" style="flex:1; padding:10px;"><i class="fas fa-check-circle"></i> Approve</button>
+                            <button onclick="moModalTuChoi(${idAnh})" class="btn-action btn-reject" style="flex:1; padding:10px;"><i class="fas fa-times-circle"></i> Reject</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
 
         function openTab(tabId, btnElement) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -760,13 +887,24 @@
 
             try {
                 const res = await fetch('/api/ChuyenGia/anh-cho-duyet');
-                const data = await res.json();
-                const badge = document.getElementById('badgePheDuyet');
-                if (data.length > 0) { badge.style.display = 'inline-block'; badge.innerText = data.length; } else badge.style.display = 'none';
-                const tbody = document.getElementById('pheDuyetBody');
-                tbody.innerHTML = data.length === 0 ? '<tr><td colspan="5" style="text-align: center;">Đã duyệt hết ảnh.</td></tr>' : '';
-                data.forEach(item => { tbody.innerHTML += `<tr><td><img src="${item.tenAnh}" style="width:70px; height:70px; border-radius:5px; object-fit:cover;"></td><td><b>${item.loaiCay}</b></td><td>${item.nhanBenh}</td><td style="font-size:12px;">${new Date(item.ngayDongGop).toLocaleDateString()}</td><td><button class="btn-action btn-approve" onclick="xuLyDuyetAnh(${item.id || item.Id}, 1)"><i class="fas fa-check"></i> Approve</button><button class="btn-action btn-reject" onclick="moModalTuChoi(${item.id || item.Id})"><i class="fas fa-times"></i> Reject</button></td></tr>`; });
-            } catch (e) { }
+                if (res.ok) {
+                    const data = await res.json();
+
+                    // Cập nhật số lượng trên thẻ thông báo
+                    const badge = document.getElementById('badgePheDuyet');
+                    if (data.length > 0) {
+                        badge.style.display = 'inline-block';
+                        badge.innerText = data.length;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+
+                    // Lưu vào biến toàn cục và hiển thị Tab Lá Sắn làm mặc định
+                    tatCaAnhChoDuyet = data;
+                    locAnhChuyenGia('Lá Sắn');
+                }
+            } catch (e) { console.error("Lỗi tải ảnh chờ duyệt:", e); }
+        
         }
 
         function moModalTraLoi(id, anh, ghiChu) {
@@ -788,10 +926,34 @@
         }
 
         async function xuLyDuyetAnh(id, trangThai, lyDo = null) {
+            // Lấy dữ liệu từ bộ nhớ
+            const chuyenGiaId = localStorage.getItem('id_BenhLa');
+            const tenChuyenGia = localStorage.getItem('hoTen_BenhLa');
+
             try {
-                const res = await fetch('/api/ChuyenGia/duyet-anh/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ TrangThai: trangThai, LyDo: lyDo }) });
-                if (res.ok) { const data = await res.json(); alert(data.message); document.getElementById('rejectModal').style.display = 'none'; taiDuLieu(); }
-            } catch (e) { }
+                const res = await fetch('/api/ChuyenGia/duyet-anh/' + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        TrangThai: trangThai,
+                        LyDo: lyDo,
+
+                        ChuyenGiaId: parseInt(chuyenGiaId) || null,
+                        TenChuyenGiaDuyet: tenChuyenGia
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    alert(data.message);
+                    document.getElementById('rejectModal').style.display = 'none';
+                    taiDuLieu();
+                } else {
+                    alert("Lỗi khi duyệt ảnh, Backend từ chối dữ liệu!");
+                }
+            } catch (e) {
+                console.error("Lỗi duyệt ảnh: ", e);
+            }
         }
 
         function moModalTuChoi(id) { currentImageId = id; document.getElementById('rejectModal').style.display = 'flex'; }

@@ -131,19 +131,35 @@ namespace PhatHienBenhLa.Controllers
             return Ok(danhSach);
         }
 
-        public class DuyetAnhRequest { public int TrangThai { get; set; } public string? LyDo { get; set; } }
+        public class DuyetAnhRequest
+        {
+            public int TrangThai { get; set; }
+            public string? LyDo { get; set; }
+
+            public int? ChuyenGiaId { get; set; }
+            public string? TenChuyenGiaDuyet { get; set; }
+        }
 
         [HttpPut("duyet-anh/{id}")]
-        public IActionResult DuyetAnh(int id, [FromBody] DuyetAnhRequest req)
+        public IActionResult DuyetAnh(int id, [FromBody] DuyetAnhRequest request)
         {
             var anh = _context.Set<Model.DongGopAnh>().FirstOrDefault(x => x.Id == id);
-            if (anh == null) return NotFound();
 
-            anh.TrangThaiDuyet = req.TrangThai;
-            anh.LyDoTuChoi = req.LyDo;
+            if (anh == null)
+            {
+                return NotFound(new { message = "Không tìm thấy ảnh!" });
+            }
+
+            anh.TrangThaiDuyet = request.TrangThai;
+            anh.LyDoTuChoi = request.LyDo;
+
+            anh.ChuyenGiaId = request.ChuyenGiaId;
+            anh.TenChuyenGiaDuyet = request.TenChuyenGiaDuyet;
+
             _context.SaveChanges();
 
-            return Ok(new { message = req.TrangThai == 1 ? "Đã phê duyệt! Ảnh sẵn sàng đưa vào huấn luyện." : "Đã từ chối ảnh!" });
+            string msg = request.TrangThai == 1 ? "Đã phê duyệt ảnh thành công!" : "Đã từ chối ảnh!";
+            return Ok(new { message = msg });
         }
     }
 }

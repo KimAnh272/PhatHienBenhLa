@@ -164,7 +164,7 @@
                 </div>
                 <div class="form-group">
                     <label>Tên đăng nhập</label>
-                    <input type="text" id="tenDangNhap" class="form-control" placeholder="Tên viết liền không dấu" required>
+                    <input type="text" id="tenDangNhap" class="form-control" placeholder="" required>
                 </div>
             </div>
 
@@ -200,7 +200,7 @@
             <div class="form-group full-width">
                 <label>Bạn là ai?</label>
                 <select class="form-control" id="vaiTro" onchange="kiemTraVaiTro()" style="background-color: white;">
-                    <option value="NongDan">Nông dân / Nhà vườn</option>
+                    <option value="NongDan">Người Dùng</option>
                     <option value="ChuyenGia">Chuyên gia Nông nghiệp</option>
                 </select>
             </div>
@@ -211,7 +211,10 @@
                 <div class="form-row" style="margin-bottom: 12px;">
                     <div class="form-group" style="margin-bottom: 0;">
                         <label style="color: #555;">Chuyên ngành tư vấn (*)</label>
-                        <input type="text" id="chuyenNganh" class="form-control" style="background: white;" placeholder="VD: Bệnh lý thực vật">
+                        <select id="chuyenNganh" class="form-control" style="background: white; font-weight: bold; color: var(--primary);">
+                            <option value="Lá Sắn">🌿 Chuyên gia Cây Sắn (Cassava)</option>
+                            <option value="Lá Khoai tây">🥔 Chuyên gia Khoai tây (Potato)</option>
+                        </select>
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
                         <label style="color: #555;">Đơn vị công tác (*)</label>
@@ -328,17 +331,25 @@
                 const data = await res.json();
 
                 if (res.ok) {
+                    // Nếu là Chuyên gia (cần chờ duyệt)
                     if (data.trangThaiDuyet === false) {
                         alert("Đăng ký thành công! Hồ sơ Chuyên gia của bạn đã được gửi cho Admin duyệt.");
                         window.location.href = '/dangnhap.html';
                     } else {
+                        // Nếu là Nông dân (được duyệt luôn) -> Lưu thông tin và vào thẳng hệ thống
                         localStorage.setItem('hoTen_BenhLa', data.hoTen);
                         localStorage.setItem('vaiTro_BenhLa', data.vaiTro);
                         localStorage.setItem('id_BenhLa', data.id);
+
+                        if (data.chuyenNganh) {
+                            localStorage.setItem('chuyenNganh_BenhLa', data.chuyenNganh);
+                        } // lưu chuyên ngành nếu có
+
                         alert("Đăng ký thành công! Chào mừng bạn đến với hệ thống.");
                         window.location.href = '/nongdan.html';
                     }
                 } else {
+                    // Xử lý khi Backend báo lỗi (VD: Trùng tên đăng nhập)
                     alert("Lỗi: " + data.message);
                     btnSubmit.innerHTML = 'Đăng ký ngay';
                     btnSubmit.disabled = false;

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PhatHienBenhLa.Model;
 
@@ -11,9 +12,11 @@ using PhatHienBenhLa.Model;
 namespace PhatHienBenhLa.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260412201829_TaoBangPhatHienBenhLa")]
+    partial class TaoBangPhatHienBenhLa
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,9 +74,6 @@ namespace PhatHienBenhLa.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ChuyenGiaId")
-                        .HasColumnType("int");
-
                     b.Property<string>("LoaiCay")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -93,10 +93,6 @@ namespace PhatHienBenhLa.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TenAnh")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TenChuyenGiaDuyet")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

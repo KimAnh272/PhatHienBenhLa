@@ -235,6 +235,12 @@
                     localStorage.setItem('vaiTro_BenhLa', data.vaiTro);
                     localStorage.setItem('id_BenhLa', data.id);
 
+                    if (data.chuyenNganh) {
+                        localStorage.setItem('chuyenNganh_BenhLa', data.chuyenNganh);
+                    } else {
+                        localStorage.removeItem('chuyenNganh_BenhLa'); // Xóa đi nếu người đăng nhập là Nông dân/Admin
+                    }
+
                     if (data.vaiTro === 'Admin') {
                         window.location.href = '/admin.html';
                     } else if (data.vaiTro === 'ChuyenGia') {

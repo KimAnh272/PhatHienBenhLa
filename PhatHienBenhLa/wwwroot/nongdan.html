@@ -469,7 +469,7 @@
 <body>
 
     <div class="sidebar">
-        <div class="sidebar-header"><i class="fas fa-leaf"></i> Trang Trại</div>
+        <div class="sidebar-header"><i class="fas fa-leaf"></i> Nông Trại Xanh</div>
         <ul class="sidebar-menu">
             <li class="tab-btn active" onclick="openTab('tab-chandoan', this)"><i class="fas fa-search-plus"></i> Chẩn đoán bệnh AI</li>
             <li class="tab-btn" onclick="openTab('tab-lichsu', this)"><i class="fas fa-history"></i> Lịch sử chẩn đoán</li>
@@ -541,7 +541,17 @@
 
             <div id="tab-lichsu" class="tab-content">
                 <div class="card">
-                    <h3><i class="fas fa-list-alt"></i> Lịch sử khám bệnh của bạn</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-light); padding-bottom: 10px; margin-bottom: 15px;">
+                        <h3 style="margin: 0; color: var(--primary); border: none; padding: 0;">
+                            <i class="fas fa-list-alt"></i> Lịch sử khám bệnh
+                        </h3>
+                        <select id="filterLichSuKham" onchange="locLichSuChanDoan()" class="form-control" style="width: auto; padding: 6px 12px; font-weight: bold; color: var(--primary); border-color: #a5d6a7; background-color: #f1f8e9; cursor: pointer;">
+                            <option value="All">Tất cả các lá</option>
+                            <option value="San">🌿 Lá Sắn</option>
+                            <option value="KhoaiTay">🥔 Lá Khoai tây</option>
+                        </select>
+                    </div>
+
                     <div class="history-list" id="historyList"></div>
                 </div>
             </div>
@@ -561,20 +571,32 @@
                         </div>
                         <div class="form-group">
                             <label>Loại cây trồng</label>
-                            <select id="txtLoaiCay" class="form-control" style="font-weight: bold; color: #2e7d32;">
+                            <select id="txtLoaiCay" class="form-control" style="font-weight: bold; color: #2e7d32;" onchange="capNhatDanhSachBenh()">
                                 <option value="Lá Sắn">🌿 Lá Sắn (Cassava)</option>
                                 <option value="Lá Khoai tây">🥔 Lá Khoai tây (Potato)</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Nhãn bệnh (Nếu biết)</label>
-                            <input type="text" id="txtNhanBenh" class="form-control" placeholder="Ví dụ: Bệnh khảm lá, Khỏe mạnh...">
+                            <label>Nhãn bệnh</label>
+                            <select id="txtNhanBenh" class="form-control" style="font-weight: bold; color: #d32f2f;">
+                            </select>
                         </div>
-                        <button class="btn-analyze" style="display:block;" id="btnSubmitDongGop" onclick="guiDongGop()"><i class="fas fa-paper-plane"></i> Gửi ảnh cho Chuyên gia</button>
+
+                        <button class="btn-analyze" style="display:block;" id="btnSubmitDongGop" onclick="guiDongGop()"><i class="fas fa-paper-plane"></i> Gửi ảnh</button>
                     </div>
 
-                    <div class="card">
-                        <h3><i class="fas fa-images"></i> Lịch sử ảnh đã gửi</h3>
+                   <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-light); padding-bottom: 10px; margin-bottom: 15px;">
+                            <h3 style="margin: 0; color: var(--primary); border: none; padding: 0;">
+                                <i class="fas fa-images"></i> Lịch sử đã gửi
+                            </h3>
+                            <select id="filterDongGop" onchange="locLichSuDongGop()" class="form-control" style="width: auto; padding: 6px 12px; font-weight: bold; color: var(--primary); border-color: #a5d6a7; background-color: #f1f8e9; cursor: pointer;">
+                                <option value="All">Tất cả các lá</option>
+                                <option value="Lá Sắn">🌿 Lá Sắn</option>
+                                <option value="Lá Khoai tây">🥔 Lá Khoai tây</option>
+                            </select>
+                        </div>
+                        
                         <div class="history-list" id="dongGopList"></div>
                     </div>
 
@@ -583,7 +605,7 @@
                             <i class="fas fa-trophy"></i> Bảng Vàng Vinh Danh
                         </h3>
                         <p style="font-size: 12px; color: #666; margin-top: -15px; margin-bottom: 20px;">
-                            Top những nông dân tích cực nhất tháng.
+                            Top những người dùng tích cực nhất tháng.
                         </p>
                         <div id="leaderboardList" style="max-height: 400px; overflow-y: auto;">
                             <p style="text-align: center; color: #999;">Đang tải dữ liệu...</p>
@@ -747,23 +769,62 @@
         }
 
         async function phanTichAnh() {
-            if (!currentFile) return;
+            if (!currentFile) {
+                alert("Bà con vui lòng chọn ảnh hoặc chụp ảnh lá cây trước nhé!");
+                return;
+            }
+
             document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('resultContainer').style.display = 'none';
+            const btn = document.getElementById('btnAnalyze');
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+
+            // CHUẨN BỊ DỮ LIỆU GỬI ĐI
             const formData = new FormData();
-            formData.append('hinhAnh', currentFile);
+            formData.append('hinhAnh', currentFile); // Tên field 'hinhAnh' khớp với Server
             formData.append('nguoiDungId', localStorage.getItem('id_BenhLa'));
             formData.append('loaiCay', document.getElementById('selectLoaiCay').value);
+            formData.append('model_type', 'YOLO'); // Ép dùng YOLO cho Người dùng để chạy nhanh
+
             try {
-                const res = await fetch('/api/PhatHien/phan-tich', { method: 'POST', body: formData });
-                const data = await res.json();
+                // GỌI API (Đi qua Controller C#)
+                const res = await fetch('/api/PhatHien/phan-tich', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                // TẮT TRẠNG THÁI CHỜ (Dù thành công hay thất bại cũng phải tắt)
+                document.getElementById('loadingState').style.display = 'none';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+
                 if (res.ok) {
+                    const data = await res.json();
                     currentLichSuId = data.idLichSu;
+
+                    // HIỂN THỊ KẾT QUẢ
                     document.getElementById('resultName').innerText = "Kết quả: " + data.loaiBenh;
                     document.getElementById('resultConfidence').innerText = "Độ tin cậy: " + (data.doTinCay * 100).toFixed(1) + "%";
-                    document.getElementById('resultAdvice').innerText = data.loaiBenh.includes("Khỏe") ? "Cây tốt." : "Cần phun thuốc.";
-                    document.getElementById('loadingState').style.display = 'none'; document.getElementById('resultContainer').style.display = 'block';
+
+                    // Đưa ra lời khuyên thông minh
+                    const isHealthy = data.loaiBenh.includes("Khỏe mạnh") || data.loaiBenh.includes("Healthy");
+                    document.getElementById('resultAdvice').innerText = isHealthy
+                        ? "Cây phát triển tốt, bà con tiếp tục chăm sóc nhé!"
+                        : "Lá có dấu hiệu bệnh, bà con nên kiểm tra kỹ vườn hoặc hỏi chuyên gia.";
+
+                    document.getElementById('resultContainer').style.display = 'block';
+                } else {
+                    const errorText = await res.text();
+                    alert("Lỗi máy chủ: " + errorText);
                 }
-            } catch (e) { }
+            } catch (e) {
+                // Xử lý lỗi mất mạng hoặc server sập
+                document.getElementById('loadingState').style.display = 'none';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                alert("Không thể kết nối đến máy chủ AI. Bà con kiểm tra lại kết nối mạng nhé!");
+            }
         }
 
         function resetUpload() {
@@ -803,104 +864,313 @@
 
         // 2. Nút "Báo AI sai"
         async function baoCaoAdmin() {
-            if (!currentLichSuId || currentLichSuId === 0) return alert("Vui lòng phân tích ảnh trước!");
+            if (!currentLichSuId || currentLichSuId === 0) {
+                return alert("Vui lòng phân tích ảnh trước khi báo cáo!");
+            }
 
-            if (confirm("Bạn muốn báo cáo kết quả AI này bị sai cho Quản trị viên?")) {
-                try {
-                    const res = await fetch('/api/PhatHien/bao-cao-admin/' + currentLichSuId, { method: 'PUT' });
-                    if (res.ok) {
-                        const btn = document.getElementById('btnReportAdmin');
-                        btn.innerHTML = '<i class="fas fa-check"></i> Đã gửi báo cáo';
-                        btn.style.backgroundColor = "#ffebee";
-                        btn.style.borderColor = "#d32f2f";
-                        btn.style.color = "#c62828";
-                        btn.disabled = true;
-                        btn.style.cursor = "default";
-                    }
-                } catch (e) { alert("Lỗi kết nối!"); }
+            try {
+                // Gọi API sang C# để bật cờ BaoCaoAdmin = true
+                const res = await fetch('/api/PhatHien/bao-cao-sai/' + currentLichSuId, {
+                    method: 'PUT'
+                });
+
+                if (res.ok) {
+                    const btn = document.getElementById('btnReportAdmin');
+                    btn.innerHTML = '<i class="fas fa-check-circle"></i> Đã báo sai';
+                    btn.style.backgroundColor = "#ffebee";
+                    btn.disabled = true;
+                    btn.style.cursor = "default";
+
+                    alert("Cảm ơn bạn! Bức ảnh đã được đưa vào danh sách chờ Admin/Chuyên gia xem xét lại.");
+                } else {
+                    alert("Có lỗi xảy ra, không thể báo cáo lúc này.");
+                }
+            } catch (e) {
+                alert("Lỗi kết nối đến máy chủ!");
             }
         }
 
         // LỊCH SỬ & ĐÓNG GÓP
+
+        let tatCaLichSuChanDoan = []; 
+
         async function taiLichSuChanDoan() {
             const userId = localStorage.getItem('id_BenhLa');
             try {
                 const res = await fetch('/api/PhatHien/lich-su/' + userId);
                 if (res.ok) {
-                    const data = await res.json();
-                    const list = document.getElementById('historyList');
-                    list.innerHTML = '';
-
-                    data.forEach(item => {
-                        const isHealthy = item.loaiBenh.includes("Khỏe");
-
-                        let phanHoiHtml = '';
-                        if (item.phanHoiCuaChuyenGia) {
-                            let tenCG = "";
-                            let noiDung = item.phanHoiCuaChuyenGia;
-                            if (item.phanHoiCuaChuyenGia.includes('|')) {
-                                const parts = item.phanHoiCuaChuyenGia.split('|');
-                                tenCG = " " + parts[0];
-                                noiDung = parts.slice(1).join('|');
-                            }
-
-                            noiDung = noiDung.replace(/\n/g, '<br>');
-
-                            phanHoiHtml = `
-                            <div style="padding:15px; background:#e3f2fd; border-radius:8px; margin-top:12px; font-size: 14.5px; line-height: 1.6; color: #1e293b; border-left: 4px solid #1976d2;">
-                                <div style="margin-bottom: 8px;">
-                                    <b style="color: #1565c0; font-size: 15px;"><i class="fas fa-user-md"></i> Chuyên gia${tenCG}:</b>
-                                </div>
-                                <div style="color: #333;">
-                                    ${noiDung}
-                                </div>
-                            </div>`;
-                        }
-
-                        list.innerHTML += `
-                                <div class="history-item">
-                                    <div class="history-main">
-                                        <img src="${item.tenAnh}" style="width:65px; height:65px; object-fit:cover; border-radius: 8px; border: 1px solid #eee;">
-                                        <div class="history-details">
-                                            <div class="history-date">${new Date(item.ngayUpload).toLocaleString('vi-VN')}</div>
-                                            <div style="font-weight:bold; color: #333; font-size: 15px;">${item.loaiBenh}</div>
-                                        </div>
-                                        <span class="status-badge" style="background:${isHealthy ? '#388e3c' : '#d32f2f'}">${isHealthy ? 'Khỏe' : 'Bệnh'}</span>
-                                    </div>
-                                    ${phanHoiHtml}
-                                </div>`;
-                    });
+                    tatCaLichSuChanDoan = await res.json(); // Lưu dữ liệu vào biến
+                    locLichSuChanDoan(); // Gọi hàm lọc để hiển thị
                 }
-            } catch (e) { }
+            } catch (e) { console.error("Lỗi tải lịch sử khám bệnh:", e); }
+        }
+
+        function locLichSuChanDoan() {
+            const list = document.getElementById('historyList');
+            const filterValue = document.getElementById('filterLichSuKham').value;
+            list.innerHTML = '';
+
+            // Lọc dữ liệu
+            let dataLoc = tatCaLichSuChanDoan;
+            if (filterValue !== 'All') {
+                dataLoc = tatCaLichSuChanDoan.filter(item => {
+                    // Ưu tiên dùng trường loaiCay nếu DB có lưu
+                    if (item.loaiCay && item.loaiCay !== '') {
+                        return item.loaiCay === filterValue;
+                    }
+                    // Dự phòng cho dữ liệu cũ đoán qua tên bệnh
+                    const benh = (item.loaiBenh || '').toLowerCase();
+                    if (filterValue === 'San') return benh.includes('cassava') || benh.includes('sắn');
+                    if (filterValue === 'KhoaiTay') return benh.includes('potato') || benh.includes('khoai') || benh.includes('nấm') || benh.includes('khuẩn') || benh.includes('sương');
+                    return false;
+                });
+            }
+
+            if (dataLoc.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:#999; padding: 20px; font-style: italic;">Không có lịch sử khám bệnh nào thuộc loại cây này.</p>';
+                return;
+            }
+
+            dataLoc.forEach(item => {
+                const isHealthy = item.loaiBenh.includes("Khỏe");
+
+                // Xử lý hiển thị phản hồi của Chuyên gia
+                let phanHoiHtml = '';
+                if (item.phanHoiCuaChuyenGia) {
+                    let tenCG = "";
+                    let noiDung = item.phanHoiCuaChuyenGia;
+                    if (item.phanHoiCuaChuyenGia.includes('|')) {
+                        const parts = item.phanHoiCuaChuyenGia.split('|');
+                        tenCG = " " + parts[0];
+                        noiDung = parts.slice(1).join('|');
+                    }
+
+                    noiDung = noiDung.replace(/\n/g, '<br>');
+
+                    phanHoiHtml = `
+                    <div style="padding:15px; background:#e3f2fd; border-radius:8px; margin-top:12px; font-size: 14.5px; line-height: 1.6; color: #1e293b; border-left: 4px solid #1976d2;">
+                        <div style="margin-bottom: 8px;">
+                            <b style="color: #1565c0; font-size: 15px;"><i class="fas fa-user-md"></i> Chuyên gia${tenCG}:</b>
+                        </div>
+                        <div style="color: #333;">
+                            ${noiDung}
+                        </div>
+                    </div>`;
+                }
+
+                // Xử lý Tag loại cây
+                const isSan = item.loaiCay === 'San' || (item.loaiBenh || '').toLowerCase().includes('sắn') || (item.loaiBenh || '').toLowerCase().includes('cassava');
+                const tenLoaiCay = isSan ? 'Lá Sắn' : 'Lá Khoai tây';
+                const tagColor = isSan ? '#2e7d32' : '#ef6c00';
+                const tagBg = isSan ? '#e8f5e9' : '#fff3e0';
+
+                list.innerHTML += `
+                        <div class="history-item">
+                            <div class="history-main">
+                                <img src="${item.tenAnh}" style="width:65px; height:65px; object-fit:cover; border-radius: 8px; border: 1px solid #eee;">
+                                <div class="history-details">
+                                    <div class="history-date">${new Date(item.ngayUpload).toLocaleString('vi-VN')}</div>
+                                    <div style="font-weight:bold; color: #333; font-size: 15px; margin-bottom: 4px;">${item.loaiBenh}</div>
+                                    <span style="font-size: 11px; font-weight: bold; color: ${tagColor}; background-color: ${tagBg}; padding: 3px 8px; border-radius: 12px;">${tenLoaiCay}</span>
+                                </div>
+                                <span class="status-badge" style="background:${isHealthy ? '#388e3c' : '#d32f2f'}">${isHealthy ? 'Khỏe' : 'Bệnh'}</span>
+                            </div>
+                            ${phanHoiHtml}
+                        </div>`;
+            });
         }
 
         async function guiDongGop() {
             const files = document.getElementById('fileDongGop').files;
-            if (files.length === 0) return alert("Chọn ảnh!");
-            for (let file of files) {
-                const formData = new FormData();
-                formData.append('hinhAnh', file);
-                formData.append('nguoiDungId', localStorage.getItem('id_BenhLa'));
-                formData.append('loaiCay', document.getElementById('txtLoaiCay').value);
-                formData.append('nhanBenh', document.getElementById('txtNhanBenh').value);
-                await fetch('/api/PhatHien/dong-gop-anh', { method: 'POST', body: formData });
+            if (files.length === 0) return alert("Vui lòng chọn ảnh thực tế trước khi gửi!");
+
+            const btn = document.getElementById('btnSubmitDongGop');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi dữ liệu...';
+            btn.disabled = true;
+
+            try {
+                for (let file of files) {
+                    const formData = new FormData();
+                    formData.append('hinhAnh', file);
+                    formData.append('nguoiDungId', localStorage.getItem('id_BenhLa'));
+                    formData.append('loaiCay', document.getElementById('txtLoaiCay').value);
+                    formData.append('nhanBenh', document.getElementById('txtNhanBenh').value);
+
+                    const res = await fetch('/api/PhatHien/dong-gop-anh', { method: 'POST', body: formData });
+
+                    if (!res.ok) {
+                        const errorMsg = await res.text();
+                        alert("Lỗi máy chủ khi lưu ảnh: " + errorMsg);
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        return; // Dừng tiến trình
+                    }
+                }
+
+                alert("Đã gửi ảnh thành công! Đang chờ Chuyên gia phê duyệt.");
+                document.getElementById('fileDongGop').value = ""; // Xóa trắng ô chọn ảnh
+                taiLichSuDongGop(); // Tải lại danh sách ngay lập tức
+
+            } catch (e) {
+                alert("Lỗi mất kết nối mạng!");
             }
-            alert("Đã gửi!"); taiLichSuDongGop();
+
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
 
+
+        let tatCaLichSuDongGop = [];
+
+        // 1. Hàm Tải Lịch sử Đóng góp 
         async function taiLichSuDongGop() {
             const userId = localStorage.getItem('id_BenhLa');
             try {
                 const res = await fetch('/api/PhatHien/lich-su-dong-gop/' + userId);
                 if (res.ok) {
                     const data = await res.json();
-                    document.getElementById('dongGopStats').innerHTML = data.thongKe.join('<br>');
-                    const list = document.getElementById('dongGopList'); list.innerHTML = '';
-                    data.lsDongGop.forEach(item => {
-                        list.innerHTML += `<div class="history-item"><img src="${item.tenAnh}" style="width:50px;"> ${item.nhanBenh}</div>`;
-                    });
+
+                    tatCaLichSuDongGop = data.lsDongGop || data.LsDongGop || data;
+
+                    const tongSoAnh = tatCaLichSuDongGop.length;
+                    const soAnhDuocDuyet = tatCaLichSuDongGop.filter(item => {
+                        const status = item.trangThaiDuyet !== undefined ? item.trangThaiDuyet : item.TrangThaiDuyet;
+                        return status == 1;
+                    }).length;
+
+                    document.getElementById('dongGopStats').innerHTML =
+                        `<div style="font-size: 15.5px; color: #444; line-height: 1.6;">
+                            Bạn đã tải lên tổng cộng <b>${tongSoAnh}</b> ảnh đóng góp.<br>
+                            Số ảnh hợp lệ được Chuyên gia ghi nhận: <b style="color: #2e7d32; font-size: 20px;">${soAnhDuocDuyet}</b> <i class="fas fa-check-circle" style="color: #388e3c;"></i>
+                        </div>`;
+
+                    locLichSuDongGop();
                 }
-            } catch (e) { }
+            } catch (e) {
+                console.error("Lỗi tải lịch sử đóng góp:", e);
+            }
+        }
+
+        // 2. Hàm Lọc và Hiển thị
+        function locLichSuDongGop() {
+            const list = document.getElementById('dongGopList');
+            const filterValue = document.getElementById('filterDongGop').value;
+            list.innerHTML = '';
+
+            let dataLoc = tatCaLichSuDongGop;
+
+            if (filterValue !== 'All') {
+                dataLoc = tatCaLichSuDongGop.filter(item => {
+                    const loai = item.loaiCay || item.LoaiCay || "";
+                    if (filterValue === 'Lá Sắn') return loai === 'San' || loai === 'Lá Sắn';
+                    if (filterValue === 'Lá Khoai tây') return loai === 'KhoaiTay' || loai === 'Lá Khoai tây';
+                    return loai === filterValue;
+                });
+            }
+
+            if (dataLoc.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:#999; padding: 20px; font-style: italic;">Không có ảnh đóng góp nào thuộc loại cây này.</p>';
+                return;
+            }
+
+            dataLoc.forEach(item => {
+                let iconTrangThai = '';
+                let mauNen = '#fff';
+                let lyDoHtml = '';
+
+                const status = item.trangThaiDuyet !== undefined ? item.trangThaiDuyet : item.TrangThaiDuyet;
+                const loai = item.loaiCay || item.LoaiCay || "";
+                const nhan = item.nhanBenh || item.NhanBenh || "";
+                const anh = item.tenAnh || item.TenAnh || "";
+                const lyDo = item.lyDoTuChoi || item.LyDoTuChoi || item.ghiChu || "Ảnh không đạt yêu cầu.";
+
+                // HIỂN THỊ TRẠNG THÁI
+                if (status == 1) {
+                    iconTrangThai = `
+                        <div style="text-align: center;">
+                            <i class="fas fa-check-circle" style="color: #388e3c; font-size: 26px;" title="Chuyên gia đã duyệt"></i>
+                            <div style="font-size: 11px; color: #388e3c; font-weight: bold; margin-top: 4px;">Đã duyệt</div>
+                        </div>`;
+                    mauNen = '#f1f8e9';
+                } else if (status == -1) {
+                    iconTrangThai = `
+                        <div style="text-align: center;">
+                            <i class="fas fa-times-circle" style="color: #d32f2f; font-size: 26px;" title="Ảnh bị từ chối"></i>
+                            <div style="font-size: 11px; color: #d32f2f; font-weight: bold; margin-top: 4px;">Từ chối</div>
+                        </div>`;
+                    mauNen = '#fff';
+
+                    lyDoHtml = `
+                        <div style="margin-top: 12px; padding: 10px 15px; background: #ffebee; border-left: 4px solid #d32f2f; border-radius: 6px; font-size: 13.5px; color: #b71c1c; display: flex; gap: 10px; align-items: flex-start;">
+                            <i class="fas fa-exclamation-circle" style="margin-top: 3px;"></i>
+                            <div><b>Lý do từ chối:</b> ${lyDo}</div>
+                        </div>
+                    `;
+                } else {
+                    iconTrangThai = `
+                        <div style="text-align: center;">
+                            <i class="fas fa-clock" style="color: #f57c00; font-size: 26px;" title="Đang chờ kiểm duyệt"></i>
+                            <div style="font-size: 11px; color: #f57c00; font-weight: bold; margin-top: 4px;">Chờ duyệt</div>
+                        </div>`;
+                    mauNen = '#fff';
+                }
+
+                const tenLoaiCay = (loai === 'San' || loai === 'Lá Sắn') ? 'Lá Sắn' : 'Lá Khoai tây';
+                const tagColor = tenLoaiCay === 'Lá Sắn' ? '#2e7d32' : '#ef6c00';
+                const tagBg = tenLoaiCay === 'Lá Sắn' ? '#e8f5e9' : '#fff3e0';
+
+                list.innerHTML += `
+                    <div class="history-item" style="background-color: ${mauNen}; padding: 15px; border-radius: 10px; margin-bottom: 12px; border: 1px solid #e0e0e0; box-shadow: 0 2px 6px rgba(0,0,0,0.03); display: block;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <img src="${anh}" style="width: 65px; height: 65px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
+                                <div>
+                                    <span style="font-weight: bold; color: #333; font-size: 15px; display: block; margin-bottom: 6px;">${nhan}</span>
+                                    <span style="font-size: 11px; font-weight: bold; color: ${tagColor}; background-color: ${tagBg}; padding: 4px 10px; border-radius: 12px;">${tenLoaiCay}</span>
+                                </div>
+                            </div>
+                            <div style="min-width: 60px;">${iconTrangThai}</div>
+                        </div>
+                        ${lyDoHtml}
+                    </div>`;
+            });
+        }
+
+        // Dữ liệu danh sách nhãn bệnh được chia theo cây
+        const danhSachBenh = {
+            "Lá Sắn": [
+                "Khỏe mạnh (Healthy)",
+                "Bệnh khảm lá (Cassava Mosaic Disease)",
+                "Bệnh sọc nâu (Cassava Brown Streak Disease)",
+                "Bệnh cháy lá vi khuẩn (Cassava Bacterial Blight)",
+                "Bệnh đốm xanh (Cassava Green Mottle)"
+            ],
+            "Lá Khoai tây": [
+                "Khỏe mạnh (Healthy)",
+                "Vi khuẩn (Bacteria)",
+                "Nấm (Fungi - Early blight)",
+                "Mốc sương (Phytophthora - Late blight)",
+                "Tuyến trùng (Nematode)",
+                "Sâu/Côn trùng (Pest)",
+                "Bệnh do virus(Virus)"
+            ]
+        };
+
+        // Hàm tự động cập nhật danh sách bệnh khi đổi loại cây
+        function capNhatDanhSachBenh() {
+            const loaiCay = document.getElementById('txtLoaiCay').value;
+            const selectBenh = document.getElementById('txtNhanBenh');
+
+            selectBenh.innerHTML = '';
+
+            // Duyệt qua danh sách bệnh tương ứng và thêm vào ô select
+            danhSachBenh[loaiCay].forEach(benh => {
+                const option = document.createElement('option');
+                option.value = benh;
+                option.text = benh;
+                selectBenh.appendChild(option);
+            });
         }
 
         // TIN TỨC / CẨM NANG
@@ -993,7 +1263,7 @@
             const loaiNguoiNhan = document.getElementById('chatRecipient').value; // 'Admin' hoặc 'ChuyenGia'
             let vaiTroGui = 'NongDan'; // Mặc định gửi cho Admin
 
-            // NẾU NÔNG DÂN CHỌN GỬI CHO CHUYÊN GIA -> Gắn nhãn đặc biệt
+            // NẾU NGƯỜI DÙNG CHỌN GỬI CHO CHUYÊN GIA -> Gắn nhãn đặc biệt
             if (loaiNguoiNhan === 'ChuyenGia') {
                 vaiTroGui = 'NongDan_To_ChuyenGia';
             }
@@ -1024,7 +1294,41 @@
             const ten = localStorage.getItem('hoTen_BenhLa');
             if (!ten) window.location.href = '/dangnhap.html';
             document.getElementById('userNameDisplay').innerText = ten;
+
+            if (typeof capNhatDanhSachBenh === "function") {
+                capNhatDanhSachBenh();
+            }
         };
+
+
+        // XỬ LÝ NÚT BÁO AI SAI
+        async function baoAISai() {
+            if (!currentLichSuId || currentLichSuId === 0) {
+                return alert("Vui lòng phân tích ảnh trước khi báo cáo!");
+            }
+
+            try {
+                // Gọi API sang C# để bật cờ BaoCaoAdmin = true
+                const res = await fetch('/api/PhatHien/bao-cao-sai/' + currentLichSuId, {
+                    method: 'PUT'
+                });
+
+                if (res.ok) {
+                    // Đổi giao diện nút thành "Đã báo cáo" để Người dùng biết
+                    const btn = document.getElementById('btnBaoSai');
+                    btn.innerHTML = '<i class="fas fa-check-circle"></i> Đã báo sai';
+                    btn.style.backgroundColor = "#ffebee"; // Nền đỏ nhạt
+                    btn.disabled = true;
+                    btn.style.cursor = "default";
+
+                    alert("Cảm ơn bạn! Bức ảnh đã được đưa vào danh sách chờ Admin/Chuyên gia xem xét lại.");
+                } else {
+                    alert("Có lỗi xảy ra, không thể báo cáo lúc này.");
+                }
+            } catch (e) {
+                alert("Lỗi kết nối đến máy chủ!");
+            }
+        }
 
         // HÀM TẢI BẢNG VÀNG VINH DANH
         async function loadLeaderboard() {
@@ -1049,7 +1353,7 @@
                         else if (index === 2) { medal = '<i class="fas fa-medal" style="color: #cd7f32; font-size: 24px;"></i>'; bgStyle = 'background: #fdfaf6; border: 1px solid #f5e6d3;'; }
                         else { medal = `<span style="font-weight: bold; color: #9e9e9e; font-size: 18px;">#${index + 1}</span>`; bgStyle = 'border-bottom: 1px dashed #eee;'; }
 
-                        // Hiển thị từng dòng Nông dân
+                        // Hiển thị từng dòng Người dùng
                         list.innerHTML += `
                     <div style="display: flex; align-items: center; padding: 12px; margin-bottom: 10px; border-radius: 8px; ${bgStyle}">
                         <div style="width: 40px; text-align: center;">

@@ -12,6 +12,7 @@ namespace PhatHienBenhLa.Model
 
         // Tạo bảng chứa thông tin phát hiện bệnh
         public DbSet<PhatHienBenhLa> LichSuPhatHien { get; set; }
+        public DbSet<Model.PhatHienBenhLa> PhatHienBenhLa { get; set; }
 
         // Tạo bảng chứa thông tin người dùng
         public DbSet<NguoiDung> DanhSachNguoiDung { get; set; }
