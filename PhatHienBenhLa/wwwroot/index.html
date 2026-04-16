@@ -9,7 +9,7 @@
         :root {
             --primary: #2e7d32;
             --primary-dark: #1b5e20;
-            --accent: #f57c00; /* Màu cam nổi bật cho nút kêu gọi hành động */
+            --accent: #f57c00; 
             --text-dark: #333;
             --text-gray: #666;
             --bg-light: #f4f7f6;
@@ -25,7 +25,6 @@
             line-height: 1.6;
         }
 
-        /* --- NAVBAR --- */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -84,7 +83,6 @@
                 background: var(--primary-dark);
             }
 
-        /* --- HERO BANNER --- */
         .hero {
             background: linear-gradient(135deg, rgba(46, 125, 50, 0.9) 0%, rgba(27, 94, 32, 0.95) 100%), url('https://images.unsplash.com/photo-1530836369250-ef71a3f5e481?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
             min-height: 80vh;
@@ -126,7 +124,6 @@
                 transform: translateY(-2px);
             }
 
-        /* --- TÍNH NĂNG (FEATURES) --- */
         .features {
             padding: 80px 20px;
             background-color: var(--bg-light);
@@ -170,7 +167,6 @@
             margin-bottom: 15px;
         }
 
-        /* --- CÁCH HOẠT ĐỘNG (HOW IT WORKS) --- */
         .steps {
             padding: 80px 20px;
             text-align: center;
@@ -297,13 +293,15 @@
     <script>
         // Kiểm tra trạng thái đăng nhập khi tải trang
         window.onload = function () {
-            const tenNguoiDung = localStorage.getItem('hoTen_BenhLa');
-            const vaiTro = localStorage.getItem('vaiTro_BenhLa');
+            const tenNguoiDung = sessionStorage.getItem('hoTen_BenhLa');
+            const vaiTro = sessionStorage.getItem('vaiTro_BenhLa');
             const authSection = document.getElementById('authSection');
 
-            // 1. NẾU ĐÃ ĐĂNG NHẬP (Có dữ liệu trong ví)
+            // 1. NẾU ĐÃ ĐĂNG NHẬP
             if (tenNguoiDung && vaiTro) {
-                let linkTrangDich = vaiTro === 'Admin' ? '/admin.html' : '/nongdan.html';
+                let linkTrangDich = '/nongdan.html';
+                if (vaiTro === 'Admin') linkTrangDich = '/admin.html';
+                else if (vaiTro === 'ChuyenGia') linkTrangDich = '/chuyengia.html';
 
                 authSection.innerHTML = `
                     <span style="font-weight: 500; margin-right: 15px; color: var(--text-dark);">
@@ -313,7 +311,7 @@
                     <button onclick="dangXuatThanhCong()" class="btn btn-outline" style="margin-left: 10px;"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
                 `;
             }
-            // 2. NẾU CHƯA ĐĂNG NHẬP (Ví trống) -> HIỆN LỜI CHÀO QUÝ KHÁCH
+            // 2. NẾU CHƯA ĐĂNG NHẬP -> HIỆN LỜI CHÀO QUÝ KHÁCH
             else {
                 authSection.innerHTML = `
                     <span style="font-weight: 500; margin-right: 15px; color: var(--text-dark);">
@@ -328,12 +326,10 @@
         // Hàm xử lý đăng xuất ngay tại trang chủ
         function dangXuatThanhCong() {
             if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
-                // Vứt ví đi
-                localStorage.removeItem('hoTen_BenhLa');
-                localStorage.removeItem('vaiTro_BenhLa');
-                localStorage.removeItem('id_BenhLa');
+                sessionStorage.removeItem('hoTen_BenhLa');
+                sessionStorage.removeItem('vaiTro_BenhLa');
+                sessionStorage.removeItem('id_BenhLa');
 
-                // Tải lại trang chủ
                 window.location.reload();
             }
         }

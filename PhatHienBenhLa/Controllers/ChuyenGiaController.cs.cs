@@ -21,10 +21,6 @@ namespace PhatHienBenhLa.Controllers
             _context = context;
             _env = env;
         }
-
-        // ========================================================
-        // TẠO CLASS NÀY ĐỂ HỨNG DỮ LIỆU TỪ TRÌNH DUYỆT (CHỐNG LỖI 400 BAD REQUEST)
-        // ========================================================
         public class CapNhatHoSoForm
         {
             public string? HoTen { get; set; }
@@ -45,13 +41,13 @@ namespace PhatHienBenhLa.Controllers
             var user = _context.DanhSachNguoiDung.FirstOrDefault(u => u.Id == id);
             if (user == null) return NotFound(new { message = "Không tìm thấy tài khoản!" });
 
-            // Cập nhật thông tin (Nếu ô nào có nhập thì mới cập nhật)
+            // Cập nhật thông tin
             user.HoTen = req.HoTen ?? user.HoTen;
             user.Email = req.Email ?? user.Email;
             user.SoDienThoai = req.SoDienThoai ?? user.SoDienThoai;
             user.DiaChi = req.DiaChi ?? user.DiaChi;
             user.ChuyenNganh = req.ChuyenNganh ?? user.ChuyenNganh;
-            user.DonViCongTac = req.DonViCongTac ?? user.DonViCongTac; // Đã đồng bộ là DonViCongTac
+            user.DonViCongTac = req.DonViCongTac ?? user.DonViCongTac;
 
             // Xử lý lưu ảnh Bằng cấp
             if (req.AnhBangCap != null && req.AnhBangCap.Length > 0)
@@ -74,10 +70,6 @@ namespace PhatHienBenhLa.Controllers
             return Ok(new { message = "Cập nhật hồ sơ thành công!" });
         }
 
-
-        // ========================================================
-        // CÁC HÀM CŨ GIỮ NGUYÊN (GIẢI ĐÁP, PHÊ DUYỆT...)
-        // ========================================================
         [HttpGet("yeu-cau-cho-xu-ly")]
         public IActionResult LayYeuCauCho()
         {

@@ -44,7 +44,7 @@ namespace PhatHienBenhLa.Controllers
             var msg = _context.Set<TinNhan>().FirstOrDefault(t => t.Id == id);
             if (msg != null)
             {
-                msg.DaDoc = true; // Chuyển trạng thái thành đã xem
+                msg.DaDoc = true;
                 _context.SaveChanges();
                 return Ok();
             }

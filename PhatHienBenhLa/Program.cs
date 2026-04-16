@@ -26,7 +26,7 @@ try
     aiProcess.StartInfo.WorkingDirectory = @"D:\Documents\DoAnTotNghiep\AI_Server";
 
     aiProcess.StartInfo.UseShellExecute = false;
-    aiProcess.StartInfo.CreateNoWindow = true; // Chạy ngầm, không hiện bảng đen
+    aiProcess.StartInfo.CreateNoWindow = true;
 
     aiProcess.Start();
     Console.WriteLine("=> DA KHOI DONG AI PYTHON SERVER THANH CONG!");

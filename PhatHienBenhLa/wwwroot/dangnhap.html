@@ -231,14 +231,14 @@
 
                 if (res.ok) {
                     // ĐĂNG NHẬP THÀNH CÔNG: Lưu thông tin và chuyển trang
-                    localStorage.setItem('hoTen_BenhLa', data.hoTen);
-                    localStorage.setItem('vaiTro_BenhLa', data.vaiTro);
-                    localStorage.setItem('id_BenhLa', data.id);
+                    sessionStorage.setItem('hoTen_BenhLa', data.hoTen);
+                    sessionStorage.setItem('vaiTro_BenhLa', data.vaiTro);
+                    sessionStorage.setItem('id_BenhLa', data.id);
 
                     if (data.chuyenNganh) {
-                        localStorage.setItem('chuyenNganh_BenhLa', data.chuyenNganh);
+                        sessionStorage.setItem('chuyenNganh_BenhLa', data.chuyenNganh);
                     } else {
-                        localStorage.removeItem('chuyenNganh_BenhLa'); // Xóa đi nếu người đăng nhập là Nông dân/Admin
+                        sessionStorage.removeItem('chuyenNganh_BenhLa'); // Xóa đi nếu người đăng nhập là Nông dân/Admin
                     }
 
                     if (data.vaiTro === 'Admin') {

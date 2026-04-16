@@ -57,7 +57,7 @@ namespace PhatHienBenhLa.Controllers
                 hoTen = newUser.HoTen,
                 vaiTro = newUser.VaiTro,
                 id = newUser.Id.ToString(),
-                trangThaiDuyet = newUser.TrangThaiDuyet,// Trả về để Frontend biết đường xử lý
+                trangThaiDuyet = newUser.TrangThaiDuyet,
                 chuyenNganh = newUser.ChuyenNganh
             });
         }

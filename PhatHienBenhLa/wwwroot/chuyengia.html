@@ -6,6 +6,115 @@
     <title>Phòng làm việc Chuyên gia - PlantDisease AI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+
+        .forum-fullscreen {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
+            border-radius: 0 !important;
+            display: flex;
+            flex-direction: column;
+            padding: 0 !important;
+            background: #f4f7f6;
+        }
+
+        .forum-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .forum-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .forum-sidebar {
+            width: 350px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .forum-post-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+            .forum-post-item:hover, .forum-post-item.active {
+                background: var(--primary-light);
+            }
+
+        .forum-chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #e5ddd5;
+            position: relative;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 10%;
+        }
+
+        .chat-input-area {
+            background: #f0f0f0;
+            padding: 15px 10%;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px;
+            outline: none;
+            font-size: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .btn-send {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+            .btn-send:hover {
+                transform: scale(1.05);
+            }
+
+        .chat-bubble {
+            padding: 12px 18px;
+            border-radius: 18px;
+            margin-bottom: 10px;
+            max-width: 80%;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
         :root {
             --primary: #1976d2;
             --primary-dark: #115293;
@@ -29,7 +138,7 @@
             min-height: 100vh;
         }
 
-        /* --- MENU BÊN TRÁI (SIDEBAR) --- */
+        /* --- MENU BÊN TRÁI --- */
         .sidebar {
             width: 260px;
             background-color: var(--white);
@@ -357,12 +466,87 @@
             margin-top: 10px;
             padding: 5px;
         }
+        /* Bong bóng tin nhắn Diễn đàn */
+        .chat-bubble {
+            padding: 12px 18px;
+            border-radius: 18px;
+            margin-bottom: 10px;
+            max-width: 80%;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Màu sắc theo vai trò */
+        .role-admin {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        .role-expert {
+            color: #1976d2;
+            font-weight: bold;
+        }
+
+        .role-farmer {
+            color: #1b5e20;
+            font-weight: bold;
+        }
+
+        /* Trạng thái thu hồi */
+        .revoked {
+            background: #f5f5f5 !important;
+            color: #999 !important;
+            font-style: italic;
+            border: 1px dashed #ccc;
+        }
+
+        /* Trạng thái Giải pháp xác minh */
+        .verified-solution {
+            border: 2px solid #ffd700;
+            background: #fffdf0;
+        }
+
+        .verified-badge {
+            background: #ffd700;
+            color: #000;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .card-checkbox {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            z-index: 10;
+            accent-color: var(--primary); 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .bulk-action-bar {
+            display: none;
+            background: #fff;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 5px solid var(--primary);
+            animation: fadeIn 0.3s;
+        }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <div class="sidebar-header"><i class="fas fa-stethoscope"></i> Cổng Chuyên Gia</div>
+        <div class="sidebar-header" onclick="window.location.href='/index.html'" style="cursor: pointer;" title="Về trang chủ">
+            <i class="fas fa-stethoscope"></i> Cổng Chuyên Gia
+        </div>
         <ul class="sidebar-menu">
             <li class="tab-btn active" onclick="openTab('tab-thongke', this)">
                 <i class="fas fa-chart-pie"></i> Thống kê dữ liệu
@@ -462,6 +646,13 @@
                             </select>
                         </div>
                     </div>
+                    <div id="bulkActionBar" class="bulk-action-bar">
+                        <div style="font-size: 15px;">Đã chọn <b id="bulkCount" style="color: var(--primary); font-size: 18px;">0</b> ảnh</div>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="xacNhanDuyetNhieuAnh(1)" class="btn-action btn-approve" style="padding: 10px 20px;"><i class="fas fa-check-circle"></i> Duyệt hàng loạt</button>
+                            <button onclick="moModalTuChoi('BULK')" class="btn-action btn-reject" style="padding: 10px 20px;"><i class="fas fa-times-circle"></i> Từ chối hàng loạt</button>
+                        </div>
+                    </div>
                     <div id="warningChuyenNganh" style="display: none; animation: fadeIn 0.3s;"></div>
                     <div id="gridAnhChoDuyet" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
                         <p style="grid-column: 1/-1; text-align: center; color: #999;">Đang tải dữ liệu...</p>
@@ -506,38 +697,76 @@
                 </div>
             </div>
             <div id="tab-hopthu" class="tab-content">
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
-                    <div class="card">
-                        <h3><i class="fas fa-inbox"></i> Hộp thư đến</h3>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Người gửi</th>
-                                    <th>Tiêu đề</th>
-                                    <th>Thời gian</th>
-                                    <th>Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody id="inboxBody">
-                                <tr><td colspan="4" style="text-align: center; color: #999;">Đang tải hộp thư...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="card" style="border-top: 4px solid var(--primary); padding: 30px;">
 
-                    <div class="card" style="background: linear-gradient(180deg, #ffffff 0%, #f4f9ff 100%); border-top: 4px solid var(--info);">
-                        <h3 style="color: var(--info);"><i class="fas fa-paper-plane"></i> Gửi tin cho Admin</h3>
-                        <div class="form-group">
-                            <label>Tiêu đề cần hỗ trợ</label>
-                            <input type="text" id="chatTitle" class="form-control" placeholder="VD: Xin hỏi lý do bài viết bị từ chối...">
+                    <div style="background: linear-gradient(135deg, var(--primary-dark), var(--primary)); border-radius: 12px; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+                        <div>
+                            <h2 style="margin: 0 0 8px 0;"><i class="fas fa-users"></i> Diễn đàn Nông nghiệp thông minh</h2>
+                            <p style="margin: 0; font-size: 14px; opacity: 0.9;">Tham gia hỗ trợ, xem các ca bệnh và giải đáp thắc mắc cho Nông dân toàn hệ thống.</p>
                         </div>
-                        <div class="form-group">
-                            <label>Nội dung chi tiết</label>
-                            <textarea id="chatContent" class="form-control" rows="6" placeholder="Nhập nội dung bạn muốn gửi cho Ban quản trị..."></textarea>
-                        </div>
-                        <button class="btn-action" style="width: 100%; background: var(--info); padding: 12px; font-size: 15px;" onclick="guiTinNhanChoAdmin()">
-                            <i class="fas fa-paper-plane"></i> Gửi tin nhắn
+                        <button onclick="moDienDanFull()" class="btn-action" style="background: #ffca28; color: #333; font-size: 15px; padding: 12px 25px; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            <i class="fas fa-comments"></i> Vào Diễn đàn ngay
                         </button>
                     </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-light); padding-bottom: 15px; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0; color: var(--primary); border: none; padding: 0; font-size: 22px;">
+                                <i class="fas fa-envelope-open-text"></i> Hộp thư & Hỗ trợ
+                            </h3>
+                            <p style="margin: 5px 0 0 0; font-size: 14px; color: var(--text-gray);">Trao đổi và nhận thông báo từ Ban Quản Trị hệ thống.</p>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-action" onclick="moModalGuiTinNhan()" style="background: #f57c00; padding: 10px 15px; font-size: 14px; box-shadow: 0 3px 6px rgba(245,124,0,0.2);"><i class="fas fa-pen"></i> Soạn thư mới</button>
+                            <button class="btn-action active" id="btnInboxReceivedCG" onclick="locHomThuCG('received')" style="background: var(--primary); padding: 10px 15px; font-size: 14px;"><i class="fas fa-inbox"></i> Thư từ Admin</button>
+                            <button class="btn-action" id="btnInboxSentCG" onclick="locHomThuCG('sent')" style="background: #9e9e9e; padding: 10px 15px; font-size: 14px;"><i class="fas fa-paper-plane"></i> Lịch sử đã gửi</button>
+                        </div>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                        <thead>
+                            <tr style="background-color: var(--primary-light);">
+                                <th style="padding: 15px; color: var(--primary-dark); text-align: left; border-top-left-radius: 8px;">Đối tượng</th>
+                                <th style="padding: 15px; color: var(--primary-dark); text-align: left;">Tiêu đề thư</th>
+                                <th style="padding: 15px; color: var(--primary-dark); text-align: left;">Thời gian</th>
+                                <th style="padding: 15px; color: var(--primary-dark); text-align: center; border-top-right-radius: 8px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inboxBodyCG">
+                            <tr><td colspan="4" style="text-align: center; padding: 30px; color: #999;">Đang tải dữ liệu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="composeMessageModal">
+                <div class="modal-content" style="width: 550px; border-top: 5px solid #f57c00; padding: 0;">
+                    <div style="padding: 25px 30px;">
+                        <span class="close-modal" onclick="closeModal('composeMessageModal')" style="right: 30px; top: 25px;"><i class="fas fa-times"></i></span>
+                        <h3 style="margin-top:0; color: #f57c00; font-size: 20px;"><i class="fas fa-paper-plane"></i> Soạn thư gửi Admin</h3>
+                        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Trình bày vấn đề hoặc yêu cầu hỗ trợ của bạn, Ban quản trị sẽ phản hồi sớm nhất có thể.</p>
+
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label style="font-weight: bold; color: #333; display: block; margin-bottom: 8px;">Tiêu đề thư <span style="color:red">*</span></label>
+                            <input type="text" id="txtTieuDeThu" class="form-control" style="width: 100%; box-sizing: border-box; padding: 12px; border-radius: 6px; border: 1px solid #ccc; font-weight: bold; color: var(--primary);" placeholder="Ví dụ: Xin hỗ trợ duyệt bài viết, Lỗi tài khoản...">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label style="font-weight: bold; color: #333; display: block; margin-bottom: 8px;">Nội dung chi tiết <span style="color:red">*</span></label>
+                            <textarea id="txtNoiDungThu" class="form-control" rows="6" style="width: 100%; box-sizing: border-box; padding: 12px; border-radius: 6px; border: 1px solid #ccc; resize: vertical; line-height: 1.5;" placeholder="Nhập chi tiết nội dung cần hỗ trợ..."></textarea>
+                        </div>
+                    </div>
+                    <div style="text-align: right; background: #fafafa; padding: 15px 30px; border-top: 1px solid #eee; border-radius: 0 0 10px 10px;">
+                        <button onclick="closeModal('composeMessageModal')" class="btn-action" style="background: #999; padding: 10px 20px; font-size: 14px;">Hủy bỏ</button>
+                        <button onclick="guiTinNhanChoAdmin()" class="btn-action" style="background: #f57c00; padding: 10px 25px; font-size: 14px; margin-right: 0;"><i class="fas fa-paper-plane"></i> Gửi tin nhắn</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="messageDetailModal">
+                <div class="modal-content" style="width: 550px; border-top: 5px solid var(--primary);">
+                    <span class="close-modal" onclick="closeModal('messageDetailModal')"><i class="fas fa-times"></i></span>
+                    <h3 id="msgModalTitle" style="margin-top:0; color: var(--primary); font-size: 20px; border-bottom: 2px solid var(--primary-light); padding-bottom: 10px;"><i class="fas fa-envelope-open"></i> Chi tiết thư</h3>
+                    <div id="msgModalBody" style="margin-top: 15px;"></div>
                 </div>
             </div>
 
@@ -587,7 +816,7 @@
                         <option value="Lá Sắn">🌿 Chuyên gia Cây Sắn (Cassava)</option>
                         <option value="Lá Khoai tây">🥔 Chuyên gia Khoai tây (Potato)</option>
                     </select>
-                 </div>
+                </div>
 
                 <div class="form-group">
                     <label>Cơ quan / Đơn vị công tác</label>
@@ -642,9 +871,46 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="forumModal" style="z-index: 10000; padding: 0;">
+        <div class="modal-content forum-fullscreen">
+            <div class="forum-header">
+                <h2 style="margin: 0; font-size: 20px;"><i class="fas fa-users"></i> Hỗ trợ Cộng đồng</h2>
+                <span onclick="closeModal('forumModal')" style="cursor:pointer; font-size:28px;"><i class="fas fa-times"></i></span>
+            </div>
+
+            <div class="forum-body">
+                <div class="forum-sidebar">
+                    <div style="padding: 20px 15px; background: var(--primary-light); color: var(--primary-dark); font-weight: bold; border-bottom: 1px solid var(--border);">
+                        <i class="fas fa-list-ul"></i> Danh sách câu hỏi từ Người dùng
+                    </div>
+                    <div id="danhSachBaiDang" style="flex: 1; overflow-y: auto;"></div>
+                </div>
+
+                <div class="forum-chat-area" id="khungChatDienDan" style="display: none;">
+                    <div id="baiDangGoc" style="background: white; padding: 20px 10%; border-bottom: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 5;"></div>
+
+                    <div class="chat-messages" id="khuVucBinhLuan"></div>
+
+                    <div class="chat-input-area">
+                        <textarea id="txtBinhLuanMoi" class="chat-input" rows="1" placeholder="Viết bình luận... (Nhấn Shift + Enter để xuống dòng)" onkeydown="xulyNhapChat(event)" style="resize: none; overflow-y: hidden; min-height: 20px; line-height: 1.5; padding-top: 12px;"></textarea>
+                        <button class="btn-send" onclick="guiBinhLuan()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+
+                <div class="forum-chat-area" id="manHinhCho" style="justify-content: center; align-items: center; background: #f0f2f5;">
+                    <div style="text-align: center; color: #888;">
+                        <i class="fas fa-comments fa-4x" style="color: #ccc; margin-bottom: 20px;"></i>
+                        <h2>Khu vực Hỗ trợ</h2>
+                        <p>Chọn một bài đăng của Người dùng ở cột bên trái để bắt đầu tư vấn.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentRecordId = 0; let currentImageId = 0;
-        let tatCaAnhChoDuyet = []; 
+        let tatCaAnhChoDuyet = [];
         let loaiCayDangDuyet = 'Lá Sắn';
 
         const danhSachBenhCG = {
@@ -688,10 +954,10 @@
             const warningDiv = document.getElementById('warningChuyenNganh');
             if (loaiCay !== chuyenNganhCuaToi) {
                 warningDiv.innerHTML = `
-                    <div style="background: #fff3e0; color: #e65100; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ff9800; font-size: 14px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 18px;"></i> 
-                        <div><b>Gợi ý hệ thống:</b> Nhóm cây này không thuộc chuyên ngành chính (<b>${chuyenNganhCuaToi}</b>). Vui lòng kiểm tra kỹ trước khi phê duyệt!</div>
-                    </div>`;
+                            <div style="background: #fff3e0; color: #e65100; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ff9800; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 18px;"></i>
+                                <div><b>Gợi ý hệ thống:</b> Nhóm cây này không thuộc chuyên ngành chính (<b>${chuyenNganhCuaToi}</b>). Vui lòng kiểm tra kỹ trước khi phê duyệt!</div>
+                            </div>`;
                 warningDiv.style.display = 'block';
             } else {
                 warningDiv.style.display = 'none';
@@ -722,6 +988,7 @@
 
             if (anhDaLoc.length === 0) {
                 container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 30px;">Không có ảnh <b>${loaiCayDangDuyet}</b> ${nhanBenhCanLoc !== 'All' ? `chờ duyệt với nhãn <b>[${nhanBenhCanLoc}]</b>` : 'nào đang chờ duyệt lúc này.'}</p>`;
+                kiemTraChonNhieuAnh(); // Ẩn thanh hàng loạt nếu hết ảnh
                 return;
             }
 
@@ -731,26 +998,79 @@
                 const ngayDongGop = new Date(item.ngayDongGop || item.NgayDongGop).toLocaleDateString('vi-VN');
 
                 container.innerHTML += `
-                    <div style="background: white; padding: 15px; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: 0.3s;" onmouseover="this.style.boxShadow='0 4px 15px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)'">
-                        <img src="${item.tenAnh}" style="width:100%; height:180px; object-fit:cover; border-radius:8px; border: 1px solid #ccc; margin-bottom: 10px;">
-                        
-                        <div style="font-size: 13px; color: #666; display: flex; justify-content: space-between;">
-                            <span><i class="fas fa-user"></i> ND-${item.nguoiDungId || item.NguoiDungId}</span>
-                            <span><i class="fas fa-clock"></i> ${ngayDongGop}</span>
-                        </div>
+                            <div style="background: white; padding: 15px; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: 0.3s; position: relative;" onmouseover="this.style.boxShadow='0 4px 15px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)'">
+                                
+                                <input type="checkbox" class="card-checkbox bulk-check" value="${idAnh}" onchange="kiemTraChonNhieuAnh()">
 
-                        <p style="margin: 8px 0; font-size: 14px;">Bệnh đề xuất:</p>
-                        <div style="font-weight: bold; color: #d32f2f; background: #ffebee; padding: 6px 10px; border-radius: 6px; text-align: center; margin-bottom: 15px; min-height: 40px; display: flex; align-items: center; justify-content: center;">
-                            ${item.nhanBenh}
-                        </div>
-                        
-                        <div style="display: flex; gap: 10px;">
-                            <button onclick="xuLyDuyetAnh(${idAnh}, 1)" class="btn-action btn-approve" style="flex:1; padding:10px;"><i class="fas fa-check-circle"></i> Approve</button>
-                            <button onclick="moModalTuChoi(${idAnh})" class="btn-action btn-reject" style="flex:1; padding:10px;"><i class="fas fa-times-circle"></i> Reject</button>
-                        </div>
-                    </div>
-                `;
+                                <img src="${item.tenAnh}" style="width:100%; height:180px; object-fit:cover; border-radius:8px; border: 1px solid #ccc; margin-bottom: 10px;">
+
+                                <div style="font-size: 13px; color: #666; display: flex; justify-content: space-between;">
+                                    <span><i class="fas fa-user"></i> ND-${item.nguoiDungId || item.NguoiDungId}</span>
+                                    <span><i class="fas fa-clock"></i> ${ngayDongGop}</span>
+                                </div>
+
+                                <p style="margin: 8px 0; font-size: 14px;">Bệnh đề xuất:</p>
+                                <div style="font-weight: bold; color: #d32f2f; background: #ffebee; padding: 6px 10px; border-radius: 6px; text-align: center; margin-bottom: 15px; min-height: 40px; display: flex; align-items: center; justify-content: center;">
+                                    ${item.nhanBenh}
+                                </div>
+
+                                <div style="display: flex; gap: 10px;">
+                                    <button onclick="xuLyDuyetAnh(${idAnh}, 1)" class="btn-action btn-approve" style="flex:1; padding:10px;"><i class="fas fa-check-circle"></i> Approve</button>
+                                    <button onclick="moModalTuChoi(${idAnh})" class="btn-action btn-reject" style="flex:1; padding:10px;"><i class="fas fa-times-circle"></i> Reject</button>
+                                </div>
+                            </div>
+                        `;
             });
+            kiemTraChonNhieuAnh();
+        }
+
+        //chọn nhiều ảnh
+        let selectedBulkIds = [];
+
+        function kiemTraChonNhieuAnh() {
+            const checkboxes = document.querySelectorAll('.bulk-check:checked');
+            selectedBulkIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+            const bulkBar = document.getElementById('bulkActionBar');
+            if (selectedBulkIds.length > 0) {
+                bulkBar.style.display = 'flex';
+                document.getElementById('bulkCount').innerText = selectedBulkIds.length;
+            } else {
+                bulkBar.style.display = 'none';
+            }
+        }
+
+        async function xacNhanDuyetNhieuAnh(trangThai, lyDo = null) {
+            const hanhDong = trangThai === 1 ? "PHÊ DUYỆT" : "TỪ CHỐI";
+            if (trangThai === 1 && !confirm(`Bạn có chắc muốn ${hanhDong} ${selectedBulkIds.length} ảnh đã chọn không?`)) return;
+
+            const chuyenGiaId = localStorage.getItem('id_BenhLa');
+            const tenChuyenGia = localStorage.getItem('hoTen_BenhLa');
+
+            try {
+                for (let id of selectedBulkIds) {
+                    await fetch('/api/ChuyenGia/duyet-anh/' + id, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            TrangThai: trangThai,
+                            LyDo: lyDo,
+                            ChuyenGiaId: parseInt(chuyenGiaId) || null,
+                            TenChuyenGiaDuyet: tenChuyenGia
+                        })
+                    });
+                }
+
+                alert(`Đã xử lý hàng loạt thành công ${selectedBulkIds.length} ảnh!`);
+
+                if (trangThai === -1) closeModal('rejectModal');
+                document.getElementById('bulkActionBar').style.display = 'none';
+                selectedBulkIds = [];
+                taiDuLieu();
+
+            } catch (e) {
+                alert("Có lỗi xảy ra khi xử lý hàng loạt.");
+            }
         }
 
         function openTab(tabId, btnElement) {
@@ -758,8 +1078,9 @@
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             btnElement.classList.add('active');
+
             if (tabId === 'tab-tintuc') taiBaiVietCuaToi();
-            if (tabId === 'tab-hopthu') taiHopThu();
+            if (tabId === 'tab-hopthu') taiHomThuCG();
         }
 
         window.onload = function () {
@@ -767,7 +1088,8 @@
             document.getElementById('userNameDisplay').innerText = localStorage.getItem('hoTen_BenhLa');
             taiDuLieu();
             loadLeaderboard();
-            taiHopThu();
+            loadNewsForExpert();
+            taiHomThuCG();
         };
 
         // --- TÍNH NĂNG QUẢN LÝ HỒ SƠ ---
@@ -870,16 +1192,16 @@
                             const ghiChu = item.ghiChuCuaNongDan ? `<div class="farmer-note"><b>Nông dân hỏi:</b> "${item.ghiChuCuaNongDan}"</div>` : `<i style="color: #999;">Nông dân gửi ảnh nhờ kiểm tra lại.</i>`;
                             const ghiChuAnToan = item.ghiChuCuaNongDan ? item.ghiChuCuaNongDan.replace(/'/g, "\\'") : '';
                             tbody.innerHTML += `
-                                <tr>
-                                    <td><img src="${item.tenAnh}" style="width:80px; height:80px; border-radius:8px; object-fit:cover; border: 1px solid #ddd;"></td>
-                                    <td style="color:var(--danger); font-weight:bold;">${item.loaiBenh}</td>
-                                    <td>${ghiChu}</td>
-                                    <td>
-                                        <button class="btn-action btn-reply" onclick="moModalTraLoi(${item.id || item.Id}, '${item.tenAnh}', '${ghiChuAnToan}')">
-                                            <i class="fas fa-comment-dots"></i> Trả lời
-                                        </button>
-                                    </td>
-                                </tr>`;
+                                        <tr>
+                                            <td><img src="${item.tenAnh}" style="width:80px; height:80px; border-radius:8px; object-fit:cover; border: 1px solid #ddd;"></td>
+                                            <td style="color:var(--danger); font-weight:bold;">${item.loaiBenh}</td>
+                                            <td>${ghiChu}</td>
+                                            <td>
+                                                <button class="btn-action btn-reply" onclick="moModalTraLoi(${item.id || item.Id}, '${item.tenAnh}', '${ghiChuAnToan}')">
+                                                    <i class="fas fa-comment-dots"></i> Trả lời
+                                                </button>
+                                            </td>
+                                        </tr>`;
                         });
                     }
                 }
@@ -904,7 +1226,7 @@
                     locAnhChuyenGia('Lá Sắn');
                 }
             } catch (e) { console.error("Lỗi tải ảnh chờ duyệt:", e); }
-        
+
         }
 
         function moModalTraLoi(id, anh, ghiChu) {
@@ -956,8 +1278,19 @@
             }
         }
 
-        function moModalTuChoi(id) { currentImageId = id; document.getElementById('rejectModal').style.display = 'flex'; }
-        function xacNhanTuChoi() { xuLyDuyetAnh(currentImageId, -1, document.getElementById('txtLyDo').value); }
+        function moModalTuChoi(id) {
+            currentImageId = id; 
+            document.getElementById('rejectModal').style.display = 'flex';
+        }
+
+        function xacNhanTuChoi() {
+            const lyDo = document.getElementById('txtLyDo').value;
+            if (currentImageId === 'BULK') {
+                xacNhanDuyetNhieuAnh(-1, lyDo);
+            } else {
+                xuLyDuyetAnh(currentImageId, -1, lyDo);
+            }
+        }
         function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
         function dangXuat() { if (confirm("Thoát?")) { localStorage.clear(); window.location.href = "/dangnhap.html"; } }
 
@@ -1038,64 +1371,168 @@
             } catch (e) { alert("Lỗi kết nối máy chủ!"); }
         }
 
-        // --- HỘP THƯ HỖ TRỢ ---
-        let allExpertMessages = [];
+        // ========================================================
+        // MODULE HÒM THƯ & HỖ TRỢ CHUYÊN GIA
+        // ========================================================
+        let allMessagesCG = [];
+        let currentInboxTabCG = 'received';
 
-        async function taiHopThu() {
+        async function taiHomThuCG() {
+            const myId = localStorage.getItem('id_BenhLa');
             try {
                 const res = await fetch('/api/TinNhan/danh-sach');
                 if (res.ok) {
-                    const data = await res.json();
-                    const userId = localStorage.getItem('id_BenhLa');
+                    const rawMessages = await res.json();
 
-                    allExpertMessages = data.filter(m => {
-                        const role = m.vaiTro || m.VaiTro || '';
-                        const receiverId = m.nguoiNhanId || m.NguoiNhanId || 0;
-                        return role === ('Admin_To_' + userId) || role === 'NongDan_To_ChuyenGia' || receiverId == userId;
-                    });
+                    // Lọc những thư liên quan đến mình
+                    allMessagesCG = rawMessages.filter(m =>
+                        (m.nguoiGuiId == myId || m.NguoiGuiId == myId) ||
+                        (m.nguoiNhanId == myId || m.NguoiNhanId == myId)
+                    );
 
-                    // TÍNH TOÁN SO TIN CHƯA ĐỌC
-                    const soTinChuaDoc = allExpertMessages.filter(m => !m.daDoc && !m.DaDoc).length;
-                    const badge = document.getElementById('badgeHopThu');
-                    if (soTinChuaDoc > 0) { badge.style.display = 'inline-block'; badge.innerText = soTinChuaDoc; }
-                    else { badge.style.display = 'none'; }
+                    // Đếm thư đến chưa đọc
+                    const thuDen = allMessagesCG.filter(m => m.nguoiNhanId == myId || m.NguoiNhanId == myId);
+                    const unread = thuDen.filter(m => m.daDoc !== true && m.DaDoc !== true).length;
 
-                    const inboxBody = document.getElementById('inboxBody');
-                    if (allExpertMessages.length === 0) {
-                        inboxBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Hộp thư trống.</td></tr>';
-                        return;
+                    const badge = document.getElementById('badgeInbox');
+                    if (badge) {
+                        badge.innerText = unread;
+                        badge.style.display = unread > 0 ? 'inline-block' : 'none';
                     }
 
-                    inboxBody.innerHTML = '';
-                    allExpertMessages.forEach((t, index) => {
-                        const date = new Date(t.ngayGui).toLocaleString('vi-VN');
-                        const isRead = t.daDoc === true || t.DaDoc === true;
-                        const rowStyle = isRead ? '' : 'background-color: #f4f9ff; font-weight: bold;';
-                        const titleColor = isRead ? '#666' : '#d32f2f';
-                        const statusBadge = isRead ? '' : '<span style="background-color:#d32f2f; color:white; padding:2px 8px; border-radius:10px; font-size:10px; margin-left:8px;">MỚI</span>';
-                        inboxBody.innerHTML += `<tr style="${rowStyle}"><td><b>${t.tenNguoiGui}</b></td><td><b style="color: ${titleColor};">${t.tieuDe}</b> ${statusBadge}</td><td style="font-size: 13px; color: #666;">${date}</td><td><button class="btn-action" style="background: var(--primary);" onclick="xemTinNhanHopThu(${index}, ${t.id || t.Id})"><i class="fas fa-eye"></i> Xem</button></td></tr>`;
-                    });
+                    locHomThuCG(currentInboxTabCG);
                 }
-            } catch (e) { console.log(e); }
+            } catch (e) { console.error("Lỗi tải hòm thư"); }
         }
 
-        async function xemTinNhanHopThu(index, id) {
-            const msg = allExpertMessages[index];
-            document.getElementById('messageContentBody').innerHTML = `<div style="margin-bottom: 10px;"><b>Từ:</b> ${msg.tenNguoiGui} (Admin)</div><div style="margin-bottom: 10px;"><b>Thời gian:</b> ${new Date(msg.ngayGui).toLocaleString('vi-VN')}</div><div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #ccc;"><b>Tiêu đề:</b> <span style="color: var(--danger); font-weight: bold;">${msg.tieuDe}</span></div><div style="background: #f9f9f9; padding: 20px; border-radius: 8px; white-space: pre-wrap; line-height: 1.6; color: #333; font-size: 14px;">${msg.noiDung}</div>`;
-            document.getElementById('messageModal').style.display = 'flex';
-            if (!msg.daDoc && !msg.DaDoc && id) {
-                try { await fetch('/api/TinNhan/danh-dau-da-doc/' + id, { method: 'PUT' }); taiHopThu(); } catch (e) { }
+        function locHomThuCG(tab) {
+            currentInboxTabCG = tab;
+            const myId = localStorage.getItem('id_BenhLa');
+
+            // Đổi màu nút Tab
+            document.getElementById('btnInboxReceivedCG').style.background = tab === 'received' ? 'var(--primary)' : '#9e9e9e';
+            document.getElementById('btnInboxSentCG').style.background = tab === 'sent' ? '#f57c00' : '#9e9e9e';
+
+            const tbody = document.getElementById('inboxBodyCG');
+            let dsLoc = tab === 'received'
+                ? allMessagesCG.filter(m => m.nguoiNhanId == myId || m.NguoiNhanId == myId)
+                : allMessagesCG.filter(m => m.nguoiGuiId == myId || m.NguoiGuiId == myId);
+
+            if (dsLoc.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999; padding: 40px; font-style: italic;">Chưa có bức thư nào trong mục này.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            dsLoc.forEach(t => {
+                const date = new Date(t.ngayGui || t.NgayGui).toLocaleString('vi-VN');
+                const isRead = t.daDoc === true || t.DaDoc === true;
+                const msgId = t.id || t.Id;
+
+                let titleColor = '', statusBadge = '', doiTuong = '', rowBg = '', textColor = '';
+
+                if (tab === 'received') {
+                    rowBg = isRead ? 'background: white;' : 'background: #f0f7ff; font-weight: bold;';
+                    textColor = isRead ? '#555' : '#111';
+                    titleColor = isRead ? '#555' : 'var(--danger)';
+                    statusBadge = isRead ? '<span style="color:#999; font-size:11px; margin-left:8px;"><i class="fas fa-check-double"></i> Đã xem</span>' : '<span style="background:var(--danger); color:white; padding:2px 8px; border-radius:12px; font-size:10px; margin-left:8px;">MỚI</span>';
+                    doiTuong = `<div style="display:flex; align-items:center; gap:8px;"><div style="width:30px; height:30px; background:var(--primary-light); color:var(--primary); border-radius:50%; display:flex; justify-content:center; align-items:center;"><i class="fas fa-shield-alt"></i></div> Từ: Admin</div>`;
+                } else {
+                    rowBg = 'background: white;';
+                    textColor = '#555';
+                    titleColor = 'var(--primary)';
+                    statusBadge = '<span style="color:var(--success); font-size:11px; margin-left:8px;"><i class="fas fa-check"></i> Đã gửi</span>';
+                    doiTuong = `<div style="display:flex; align-items:center; gap:8px;"><div style="width:30px; height:30px; background:#fff3e0; color:#f57c00; border-radius:50%; display:flex; justify-content:center; align-items:center;"><i class="fas fa-paper-plane"></i></div> Gửi: Admin</div>`;
+                }
+
+                tbody.innerHTML += `
+                            <tr style="${rowBg} border-bottom: 1px solid #f0f0f0; transition: 0.3s;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='${isRead || tab === 'sent' ? 'white' : '#f0f7ff'}'">
+                                <td style="padding: 15px; color: ${textColor}; border-bottom: 1px solid #f0f0f0;">${doiTuong}</td>
+                                <td style="padding: 15px; border-bottom: 1px solid #f0f0f0;"><b style="color: ${titleColor}; font-size: 15px;">${t.tieuDe || t.TieuDe}</b> <br> ${statusBadge}</td>
+                                <td style="padding: 15px; font-size: 13px; color: #888; border-bottom: 1px solid #f0f0f0;"><i class="far fa-clock"></i> ${date}</td>
+                                <td style="padding: 15px; text-align: center; border-bottom: 1px solid #f0f0f0;">
+                                    <button class="btn-action" onclick="xemTinNhanCG(${msgId})" style="background-color: ${tab === 'received' ? 'var(--primary)' : '#9e9e9e'}; border-radius: 6px; padding: 8px 12px;"><i class="fas fa-eye"></i> Xem</button>
+                                </td>
+                            </tr>`;
+            });
+        }
+
+        async function xemTinNhanCG(msgId) {
+            const msg = allMessagesCG.find(m => (m.id || m.Id) === msgId);
+            if (!msg) return;
+
+            document.getElementById('msgModalTitle').innerText = currentInboxTabCG === 'received' ? "Chi tiết thư từ Admin" : "Chi tiết thư đã gửi";
+            document.getElementById('msgModalBody').innerHTML = `
+                        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <div style="margin-bottom: 8px; font-size: 14px; color: #555;"><b>${currentInboxTabCG === 'received' ? '<i class="fas fa-user-shield"></i> Từ:' : '<i class="fas fa-paper-plane"></i> Gửi tới:'}</b> Ban Quản Trị (Admin)</div>
+                            <div style="margin-bottom: 8px; font-size: 14px; color: #555;"><b><i class="far fa-clock"></i> Thời gian:</b> ${new Date(msg.ngayGui || msg.NgayGui).toLocaleString('vi-VN')}</div>
+                            <div style="font-size: 14px; color: #555;"><b><i class="fas fa-heading"></i> Tiêu đề:</b> <span style="color: var(--danger); font-weight: bold; font-size: 16px;">${msg.tieuDe || msg.TieuDe}</span></div>
+                        </div>
+                        <div style="border: 1px solid var(--primary-light); border-radius: 8px; overflow: hidden;">
+                            <div style="background: var(--primary-light); color: var(--primary-dark); font-weight: bold; padding: 10px 15px; font-size: 14px;">
+                                <i class="fas fa-align-left"></i> Nội dung chi tiết:
+                            </div>
+                            <div style="padding: 15px; font-size: 14.5px; line-height: 1.6; color: #333; white-space: pre-wrap; min-height: 100px;">${msg.noiDung || msg.NoiDung}</div>
+                        </div>
+                    `;
+
+            document.getElementById('messageDetailModal').style.display = 'flex';
+
+            if (currentInboxTabCG === 'received') {
+                const isRead = msg.daDoc === true || msg.DaDoc === true;
+                if (!isRead) {
+                    try {
+                        await fetch('/api/TinNhan/danh-dau-da-doc/' + msgId, { method: 'PUT' });
+                        taiHomThuCG();
+                    } catch (e) { }
+                }
             }
         }
 
+        function moModalGuiTinNhan() {
+            document.getElementById('txtTieuDeThu').value = '';
+            document.getElementById('txtNoiDungThu').value = '';
+            document.getElementById('composeMessageModal').style.display = 'flex';
+        }
+
         async function guiTinNhanChoAdmin() {
-            const tieuDe = document.getElementById('chatTitle').value; const noiDung = document.getElementById('chatContent').value;
-            if (!tieuDe || !noiDung) return alert("Vui lòng nhập đầy đủ tiêu đề và nội dung!");
-            const req = { NguoiGuiId: localStorage.getItem('id_BenhLa'), TenNguoiGui: localStorage.getItem('hoTen_BenhLa'), VaiTro: 'ChuyenGia', TieuDe: tieuDe, NoiDung: noiDung, NguoiNhanId: 0 };
+            const tieuDe = document.getElementById('txtTieuDeThu').value;
+            const noiDung = document.getElementById('txtNoiDungThu').value;
+
+            if (!tieuDe || !noiDung) return alert("Vui lòng điền đầy đủ Tiêu đề và Nội dung thư!");
+
+            const req = {
+                NguoiGuiId: localStorage.getItem('id_BenhLa'),
+                TenNguoiGui: localStorage.getItem('hoTen_BenhLa'),
+                VaiTro: "ChuyenGia",
+                NguoiNhanId: "Admin",
+                TieuDe: tieuDe,
+                NoiDung: noiDung
+            };
+
+            const btn = document.querySelector('#composeMessageModal button.btn-action[style*="background: #f57c00;"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+            btn.disabled = true;
+
             try {
-                const res = await fetch('/api/TinNhan/gui-tin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req) });
-                if (res.ok) { alert("Đã gửi tin nhắn cho Ban quản trị thành công!"); document.getElementById('chatTitle').value = ''; document.getElementById('chatContent').value = ''; }
-            } catch (e) { alert("Lỗi kết nối máy chủ!"); }
+                const res = await fetch('/api/TinNhan/gui-tin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(req)
+                });
+
+                if (res.ok) {
+                    alert("Đã gửi thư cho Ban quản trị thành công!");
+                    closeModal('composeMessageModal');
+                    taiHomThuCG();
+                } else {
+                    alert("Gặp sự cố khi gửi thư. Vui lòng thử lại!");
+                }
+            } catch (e) { alert("Lỗi mạng! Kiểm tra lại kết nối."); }
+
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
 
         // --- BẢNG XẾP HẠNG TOP NÔNG DÂN ---
@@ -1118,19 +1555,19 @@
                         else medal = `<b style="color: #888; font-size: 16px;">#${index + 1}</b>`;
 
                         tbody.innerHTML += `
-                                    <tr>
-                                        <td style="text-align: center;">${medal}</td>
-                                        <td>
-                                            <b style="color: #1b5e20; font-size: 15px;">${item.hoTen}</b><br>
-                                            <span style="font-size: 12px; color: #888;">ID: ND-${item.nguoiDungId}</span>
-                                        </td>
-                                        <td>
-                                            <span style="background: #fff3e0; color: #ef6c00; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">
-                                                ${item.danhHieu}
-                                            </span>
-                                        </td>
-                                        <td><b style="color: #2e7d32; font-size: 18px;">${item.soLuong}</b> <span style="font-size: 13px; color: #666;">ảnh</span></td>
-                                    </tr>`;
+                                            <tr>
+                                                <td style="text-align: center;">${medal}</td>
+                                                <td>
+                                                    <b style="color: #1b5e20; font-size: 15px;">${item.hoTen}</b><br>
+                                                    <span style="font-size: 12px; color: #888;">ID: ND-${item.nguoiDungId}</span>
+                                                </td>
+                                                <td>
+                                                    <span style="background: #fff3e0; color: #ef6c00; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">
+                                                        ${item.danhHieu}
+                                                    </span>
+                                                </td>
+                                                <td><b style="color: #2e7d32; font-size: 18px;">${item.soLuong}</b> <span style="font-size: 13px; color: #666;">ảnh</span></td>
+                                            </tr>`;
                     });
                 }
             } catch (e) {
@@ -1138,6 +1575,216 @@
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Lỗi kết nối máy chủ!</td></tr>';
             }
         }
+
+        // Hàm chuyển đổi thời gian gốc thành "Khoảng thời gian trước" (Time Ago)
+        function tinhThoiGian(thoiGianGoc) {
+            const thoiGianDang = new Date(thoiGianGoc);
+            const hienTai = new Date();
+            const soGiayTrangQua = Math.floor((hienTai - thoiGianDang) / 1000);
+
+            if (soGiayTrangQua < 60) {
+                return "Vừa xong";
+            }
+
+            const soPhut = Math.floor(soGiayTrangQua / 60);
+            if (soPhut < 60) {
+                return `${soPhut} phút trước`;
+            }
+
+            const soGio = Math.floor(soPhut / 60);
+            if (soGio < 24) {
+                return `${soGio} giờ trước`;
+            }
+
+            const soNgay = Math.floor(soGio / 24);
+            if (soNgay < 7) {
+                return `${soNgay} ngày trước`;
+            }
+
+            // Nếu quá 7 ngày, hiển thị ngày tháng năm và giờ (VD: 15:30 12/04/2026)
+            const gioPhut = thoiGianDang.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            const ngayThang = thoiGianDang.toLocaleDateString('vi-VN');
+            return `${gioPhut} ${ngayThang}`;
+        }
+
+        // ========================================================
+        // MODULE: DIỄN ĐÀN HỎI ĐÁP & BÌNH LUẬN (DÀNH CHO CHUYÊN GIA & ADMIN)
+        // ========================================================
+        let danhSachBaiVietDienDan = [];
+        let currentBaiVietId = null;
+
+        function tinhThoiGian(thoiGianGoc) {
+            const thoiGianDang = new Date(thoiGianGoc);
+            const hienTai = new Date();
+            const soGiayTrangQua = Math.floor((hienTai - thoiGianDang) / 1000);
+
+            if (soGiayTrangQua < 60) return "Vừa xong";
+            const soPhut = Math.floor(soGiayTrangQua / 60);
+            if (soPhut < 60) return `${soPhut} phút trước`;
+            const soGio = Math.floor(soPhut / 60);
+            if (soGio < 24) return `${soGio} giờ trước`;
+            const soNgay = Math.floor(soGio / 24);
+            if (soNgay < 7) return `${soNgay} ngày trước`;
+
+            return thoiGianDang.toLocaleDateString('vi-VN') + " " + thoiGianDang.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function renderBinhLuan(comment) {
+            const currentUserId = localStorage.getItem('id_BenhLa');
+            const myRole = localStorage.getItem('vaiTro_BenhLa');
+            let headerHtml = ""; let alignment = "left"; let bgColor = "#ffffff";
+
+            if (comment.nguoiDungId === currentUserId || comment.NguoiDungId === currentUserId) {
+                alignment = "right"; bgColor = "#e8f5e9";
+            } else {
+                const vaiTro = comment.vaiTro || comment.VaiTro;
+                const tenNguoiDung = comment.tenNguoiDung || comment.TenNguoiDung;
+                if (vaiTro === 'Admin') headerHtml = `<div style="color: #d32f2f; font-weight: bold; font-size: 13px; margin-bottom: 4px;"><i class="fas fa-user-shield"></i> Quản trị viên</div>`;
+                else if (vaiTro === 'ChuyenGia') headerHtml = `<div style="color: #1976d2; font-weight: bold; font-size: 13px; margin-bottom: 4px;">Chuyên gia: ${tenNguoiDung} <i class="fas fa-check-circle" style="color: #1da1f2;"></i></div>`;
+                else headerHtml = `<div style="color: #1b5e20; font-weight: bold; font-size: 13px; margin-bottom: 4px;">ND - ${tenNguoiDung}</div>`;
+            }
+
+            let content = comment.noiDung || comment.NoiDung;
+            let revokedStyle = "";
+            if (comment.isRevoked || comment.IsRevoked) {
+                content = "<i class='fas fa-undo'></i> QTV đã thu hồi nội dung này";
+                revokedStyle = "background: #f5f5f5 !important; color: #999 !important; font-style: italic; border: 1px dashed #ccc;"; bgColor = "#f5f5f5";
+            }
+
+            let dblClickAttr = (myRole === 'Admin') ? `ondblclick="thuHoiComment(${comment.id || comment.Id})"` : "";
+            let verifiedHtml = ""; let verifiedBorder = "";
+            if (comment.isVerified || comment.IsVerified) {
+                verifiedBorder = "border: 2px solid #ffd700; background: #fffdf0;";
+                verifiedHtml = `<span style="background: #ffd700; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; margin-left: 10px;">Giải pháp đã xác thực</span>`;
+            }
+
+            const thoiGianHienThi = tinhThoiGian(comment.ngayBinhLuan || comment.NgayBinhLuan);
+            const luotTim = comment.luotTim || comment.LuotTim || 0;
+
+            return `
+                    <div style="display: flex; justify-content: ${alignment === 'right' ? 'flex-end' : 'flex-start'}; margin-bottom: 15px;">
+                        <div style="padding: 12px 18px; border-radius: 18px; max-width: 80%; box-shadow: 0 2px 5px rgba(0,0,0,0.05); background: ${bgColor}; ${revokedStyle} ${verifiedBorder}" ${dblClickAttr}>
+                            ${headerHtml}
+                            <div style="font-size: 14.5px; line-height: 1.5; color: #333; white-space: pre-wrap;">${content}</div>
+                            <div style="text-align: right; font-size: 11px; color: #999; margin-top: 6px;">
+                                ${thoiGianHienThi} &nbsp;&bull;&nbsp; <i class="far fa-heart" style="cursor:pointer; color: #f44336;" onclick="thaTimComment(${comment.id || comment.Id})"></i> ${luotTim}
+                                ${verifiedHtml}
+                            </div>
+                        </div>
+                    </div>`;
+        }
+
+        async function taiDanhSachBinhLuan(baiVietId) {
+            const container = document.getElementById('khuVucBinhLuan');
+            if (!container) return;
+            container.innerHTML = '<p style="text-align:center; color:#999;">Đang tải bình luận...</p>';
+            try {
+                const res = await fetch('/api/DienDan/binh-luan/' + baiVietId);
+                if (res.ok) {
+                    const data = await res.json();
+                    container.innerHTML = '';
+                    if (data.length === 0) { container.innerHTML = '<p style="text-align:center; color:#999; font-style: italic;">Chưa có bình luận nào. Hãy là người đầu tiên!</p>'; return; }
+                    data.forEach(comment => { container.innerHTML += renderBinhLuan(comment); });
+                    container.scrollTop = container.scrollHeight;
+                }
+            } catch (e) { container.innerHTML = '<p style="text-align:center; color:red;">Lỗi tải bình luận!</p>'; }
+        }
+
+        function moDienDanFull() { document.getElementById('forumModal').style.display = 'flex'; taiDanhSachBaiDang(); }
+
+        async function taiDanhSachBaiDang() {
+            const list = document.getElementById('danhSachBaiDang');
+            list.innerHTML = '<div style="padding: 30px; text-align: center; color: #999;"><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...</div>';
+            try {
+                const res = await fetch('/api/DienDan/bai-viet');
+                if (res.ok) {
+                    danhSachBaiVietDienDan = await res.json();
+                    list.innerHTML = '';
+                    if (danhSachBaiVietDienDan.length === 0) { list.innerHTML = '<div style="padding: 30px; text-align: center; color: #999;">Chưa có câu hỏi nào từ Nông dân.</div>'; return; }
+                    danhSachBaiVietDienDan.forEach(item => {
+                        list.innerHTML += `
+                                <div class="forum-post-item" onclick="xemChiTietBaiDang(${item.id || item.Id})">
+                                    <div style="font-weight: bold; color: var(--text-dark); margin-bottom: 5px; font-size: 15px;">${item.tieuDe || item.TieuDe}</div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #888;">
+                                        <span><i class="fas fa-user-circle"></i> ${item.tenNguoiDang || item.TenNguoiDang}</span>
+                                        <span>${tinhThoiGian(item.ngayDang || item.NgayDang)} &nbsp;&bull;&nbsp; <i class="far fa-comment-dots"></i> ${item.luotBinhLuan || item.LuotBinhLuan || 0}</span>
+                                    </div>
+                                </div>`;
+                    });
+                }
+            } catch (e) { list.innerHTML = '<div style="color: red; text-align:center; padding: 20px;">Lỗi mạng!</div>'; }
+        }
+
+        function xemChiTietBaiDang(id) {
+            currentBaiVietId = id;
+            document.getElementById('manHinhCho').style.display = 'none';
+            document.getElementById('khungChatDienDan').style.display = 'flex';
+
+            const baiViet = danhSachBaiVietDienDan.find(b => (b.id === id || b.Id === id));
+            if (!baiViet) return;
+
+            let imagesHtml = '';
+            const chuoiAnh = baiViet.hinhAnhLBenh || baiViet.HinhAnhLBenh;
+            if (chuoiAnh && chuoiAnh.trim() !== '') {
+                const imgPaths = chuoiAnh.split('|').filter(p => p !== "");
+                if (imgPaths.length > 0) {
+                    imagesHtml = `<div style="display: flex; gap: 15px; margin-top: 15px; overflow-x: auto;">`;
+                    imgPaths.forEach(path => { imagesHtml += `<img src="${path}" style="height: 150px; border-radius: 8px; border: 1px solid #ddd; object-fit: contain; cursor: pointer; background: #fafafa;" onclick="window.open('${path}', '_blank')">`; });
+                    imagesHtml += `</div>`;
+                }
+            }
+
+            document.getElementById('baiDangGoc').innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <div style="width: 40px; height: 40px; background: var(--primary-light); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--primary-dark); font-weight: bold;">ND</div>
+                        <div>
+                            <div style="font-weight: bold; color: var(--primary-dark);">ND - ${baiViet.tenNguoiDang || baiViet.TenNguoiDang}</div>
+                            <div style="font-size: 12px; color: #888;">${tinhThoiGian(baiViet.ngayDang || baiViet.NgayDang)}</div>
+                        </div>
+                    </div>
+                    <h3 style="margin: 0 0 10px 0; color: #333; font-size: 18px;">${baiViet.tieuDe || baiViet.TieuDe}</h3>
+                    <p style="margin: 0; line-height: 1.6; color: #444; white-space: pre-wrap; font-size: 15px;">${baiViet.noiDung || baiViet.NoiDung}</p>
+                    ${imagesHtml}
+                `;
+            taiDanhSachBinhLuan(id);
+        }
+
+        // Hàm xử lý khung Chat thông minh (Co dãn tự động + Shift Enter)
+        function xulyNhapChat(event) {
+            const el = event.target;
+
+            // Tự động kéo dãn chiều cao của khung nhập chữ
+            el.style.height = 'auto';
+            el.style.height = (el.scrollHeight) + 'px';
+
+            // Nếu nhấn Enter MÀ KHÔNG giữ phím Shift -> Gửi bài
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault(); // Ngăn việc tự động rớt dòng
+                guiBinhLuan();
+
+                // Trả khung chat về lại chiều cao 1 dòng sau khi gửi
+                el.style.height = 'auto';
+            }
+        }
+
+        async function guiBinhLuan() {
+            const input = document.getElementById('txtBinhLuanMoi');
+            const noiDung = input.value.trim();
+            if (!noiDung) return;
+            if (!currentBaiVietId) return alert("Vui lòng chọn bài viết!");
+
+            const req = { BaiVietId: currentBaiVietId, NguoiDungId: localStorage.getItem('id_BenhLa'), TenNguoiDung: localStorage.getItem('hoTen_BenhLa'), VaiTro: localStorage.getItem('vaiTro_BenhLa'), NoiDung: noiDung };
+            input.value = '';
+            try {
+                const res = await fetch('/api/DienDan/binh-luan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req) });
+                if (res.ok) { taiDanhSachBinhLuan(currentBaiVietId); taiDanhSachBaiDang(); }
+                else alert("Gửi thất bại!");
+            } catch (e) { alert("Lỗi mạng!"); }
+        }
+
+        async function thaTimComment(id) { try { await fetch('/api/DienDan/tha-tim-binh-luan/' + id, { method: 'PUT' }); taiDanhSachBinhLuan(currentBaiVietId); } catch (e) { } }
+        async function thuHoiComment(id) { if (!confirm("Thu hồi bình luận này?")) return; try { await fetch('/api/DienDan/thu-hoi-binh-luan/' + id, { method: 'PUT' }); taiDanhSachBinhLuan(currentBaiVietId); } catch (e) { } }
+        async function xacNhanGiaiPhap(id) { try { await fetch('/api/DienDan/xac-nhan-giai-phap/' + id, { method: 'PUT' }); taiDanhSachBinhLuan(currentBaiVietId); } catch (e) { } }
     </script>
 </body>
 </html>

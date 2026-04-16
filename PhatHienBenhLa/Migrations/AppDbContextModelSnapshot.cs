@@ -63,6 +63,88 @@ namespace PhatHienBenhLa.Migrations
                     b.ToTable("BaiViet");
                 });
 
+            modelBuilder.Entity("PhatHienBenhLa.Model.BaiVietHoiDap", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("HinhAnhLBenh")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("LuotXem")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("NgayDang")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NguoiDungId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NoiDung")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TenNguoiDang")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TieuDe")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BaiVietHoiDaps");
+                });
+
+            modelBuilder.Entity("PhatHienBenhLa.Model.BinhLuan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BaiVietId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LuotTim")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("NgayBinhLuan")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NguoiDungId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NoiDung")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TenNguoiDung")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VaiTro")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BinhLuans");
+                });
+
             modelBuilder.Entity("PhatHienBenhLa.Model.DongGopAnh", b =>
                 {
                     b.Property<int>("Id")
@@ -97,7 +179,6 @@ namespace PhatHienBenhLa.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TenChuyenGiaDuyet")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TrangThaiDuyet")

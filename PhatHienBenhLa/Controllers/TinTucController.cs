@@ -50,7 +50,7 @@ namespace PhatHienBenhLa.Controllers
                 TenChuyenGia = TenChuyenGia,
                 AnhMinhHoa = duongDanAnh,
                 NgayDang = DateTime.Now,
-                TrangThaiDuyet = 0 // Chờ Admin duyệt
+                TrangThaiDuyet = 0
             };
 
             _context.Set<BaiViet>().Add(bv);
@@ -99,7 +99,6 @@ namespace PhatHienBenhLa.Controllers
         [HttpGet("tat-ca-bai-viet")]
         public IActionResult GetAllBaiViet()
         {
-            // ĐỔI TinTucs THÀNH BaiViets
             var list = _context.BaiViets.OrderByDescending(x => x.NgayDang).ToList();
             return Ok(list);
         }
@@ -108,11 +107,10 @@ namespace PhatHienBenhLa.Controllers
         [HttpPut("tu-choi-bai/{id}")]
         public IActionResult TuChoiBaiViet(int id)
         {
-            // ĐỔI TinTucs THÀNH BaiViets
             var bai = _context.BaiViets.Find(id);
             if (bai == null) return NotFound();
 
-            bai.TrangThaiDuyet = -1; // Cập nhật trạng thái thành Từ chối (-1)
+            bai.TrangThaiDuyet = -1;
 
             _context.SaveChanges();
             return Ok();
@@ -122,10 +120,10 @@ namespace PhatHienBenhLa.Controllers
         [HttpPut("thu-hoi-bai/{id}")]
         public IActionResult ThuHoiBaiViet(int id)
         {
-            var bai = _context.Set<BaiViet>().Find(id); // Dùng BaiViet hoặc TinTuc tùy model của bạn
+            var bai = _context.Set<BaiViet>().Find(id);
             if (bai == null) return NotFound();
 
-            bai.TrangThaiDuyet = -2; // -2 là trạng thái Đã Thu Hồi
+            bai.TrangThaiDuyet = -2; // Đã Thu Hồi
 
             _context.SaveChanges();
             return Ok();
